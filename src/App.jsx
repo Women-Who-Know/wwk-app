@@ -926,7 +926,7 @@ function Landing({ onStart }) {
   return (
     <div>
       <nav style={S.topNav}>
-        <span style={S.navLogo}>Women Who Know</span>
+        <a href="https://women-who-know.github.io/wwk-landing/" style={S.navLogo}>Women Who Know</a>
         <button style={S.navBtn} onClick={onStart}>Begin Assessment — $57</button>
       </nav>
       {/* Dark hero section — matches landing page */}
@@ -1075,7 +1075,7 @@ function Assessment({ q, currentQ, total, progress, answers, setAnswer, onNext, 
     <div style={S.assessScreen}>
       {/* Header */}
       <div style={S.assessHeader}>
-        <div style={S.wwkSm}>WWK</div>
+        <a href="https://women-who-know.github.io/wwk-landing/" style={{ ...S.wwkSm, textDecoration: "none" }}>WWK</a>
         <div style={S.progressWrap}>
           <div style={{ ...S.progressBar, width: `${progress}%` }} />
         </div>
