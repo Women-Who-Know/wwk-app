@@ -863,6 +863,7 @@ export default function App() {
       setScreen("submitted");
     } catch (e) {
       setError(e.message || "Something went wrong. Please try again.");
+      setCurrentQ(TOTAL - 1);
       setScreen("assessment");
     }
   }
@@ -910,6 +911,7 @@ export default function App() {
         />
       )}
       {screen === "generating" && <Generating name={name} />}
+      {screen === "submitted" && <Submitted name={name} email={email} />}
       {screen === "report" && (
         <Report
           name={name} sections={sections} scores={scores} rawReport={report}
@@ -1504,6 +1506,32 @@ function Generating({ name }) {
         <h2 style={S.h2}>{phases[phase]}{dots}</h2>
         <p style={S.body}>
           {name ? `${name.split(" ")[0]}, your` : "Your"} personalised Founder Benchmark Report is being written specifically for you. This takes about 30 seconds.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Submitted({ name, email }) {
+  const firstName = name ? name.split(" ")[0] : "You";
+  return (
+    <div style={S.center}>
+      <div style={{ ...S.container, maxWidth: 520 }} className="fadein">
+        <div style={S.wwk}>Women Who Know</div>
+        <h2 style={S.h2}>{firstName}, your report is on its way.</h2>
+        <p style={S.lead}>
+          Your Founder Benchmark Report has been generated and is being reviewed before delivery.
+        </p>
+        <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "32px 0", margin: "32px 0" }}>
+          <p style={{ ...S.body, marginBottom: 8 }}>
+            <strong style={{ fontWeight: 500, color: COLORS.dark }}>Delivered to:</strong> {email}
+          </p>
+          <p style={{ ...S.body, marginBottom: 0 }}>
+            <strong style={{ fontWeight: 500, color: COLORS.dark }}>Timeframe:</strong> Within one business day
+          </p>
+        </div>
+        <p style={S.fine}>
+          Check your spam folder if you don't see it. Your report is written specifically for you — not a template. Questions? Email <a href="mailto:hello@womenwhoknow.ca" style={{ color: COLORS.teal }}>hello@womenwhoknow.ca</a>
         </p>
       </div>
     </div>
