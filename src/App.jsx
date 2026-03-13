@@ -929,39 +929,41 @@ function Landing({ onStart }) {
         <span style={S.navLogo}>Women Who Know</span>
         <button style={S.navBtn} onClick={onStart}>Begin Assessment — $57</button>
       </nav>
-      <div style={{ ...S.center, minHeight: "calc(100vh - 68px)" }}>
-        <div style={{ ...S.container, maxWidth: 600, textAlign: "center" }} className="fadein">
-          <div style={S.wwk}>Women Who Know</div>
-          <h1 style={S.h1}>
+      {/* Dark hero section — matches landing page */}
+      <div style={{ background: COLORS.dark, padding: "96px 56px 80px" }}>
+        <div style={{ maxWidth: 680 }}>
+          <div style={{ ...S.wwk, color: COLORS.teal, marginBottom: 28 }}>Founder Benchmark Assessment</div>
+          <h1 style={{ ...S.h1, color: COLORS.white, marginBottom: 32 }}>
             Where are you<br /><em>actually</em> stuck?
           </h1>
-          <p style={S.lead}>
+          <p style={{ ...S.lead, color: "rgba(255,255,255,0.75)", marginBottom: 48 }}>
             Not where you think you're stuck.<br />Where the numbers say you're stuck.
           </p>
-          <p style={S.body}>
-            The Founder Benchmark Assessment gives you a personalised diagnostic report — 
-            where you sit against industry benchmarks, where your revenue is leaking, 
-            and exactly what to do about it.
+          <button style={{ ...S.btn, width: "auto", display: "inline-block", padding: "20px 48px", marginTop: 0, letterSpacing: "0.12em" }} onClick={onStart}>
+            Begin My Assessment — $57
+          </button>
+          <p style={{ ...S.fine, color: "rgba(255,255,255,0.45)", marginTop: 20 }}>
+            Card held at checkout. Charged only when your report is ready.
           </p>
-          <p style={S.body}>
-            18 questions. Your report delivered within one business day. 
+        </div>
+      </div>
+      {/* White content section */}
+      <div style={{ background: COLORS.white, padding: "72px 56px 80px" }}>
+        <div style={{ maxWidth: 680 }}>
+          <p style={{ ...S.body, textAlign: "left", fontSize: 17, lineHeight: 1.85, color: COLORS.inkLight, marginBottom: 48 }}>
+            The Founder Benchmark Assessment gives you a personalised diagnostic report —
+            where you sit against industry benchmarks, where your revenue is leaking,
+            and exactly what to do about it. 18 questions. Delivered within one business day.
             Written specifically for you — not a template.
           </p>
           <div style={S.pillars}>
-            {[["CLEAR", "Positioning & Clarity"], ["WORTHY", "Pricing & Self-Worth"], ["WEALTHY", "Operations & Scale"]].map(([p, d]) => (
+            {[["CLEAR", "Positioning & Clarity", COLORS.gold], ["WORTHY", "Pricing & Self-Worth", COLORS.teal], ["WEALTHY", "Operations & Scale", COLORS.dark]].map(([p, d, c]) => (
               <div key={p} style={S.pillar}>
-                <span style={{ ...S.pillarLabel, color: COLORS[p] }}>{p}</span>
+                <span style={{ ...S.pillarLabel, color: c }}>{p}</span>
                 <span style={S.pillarSub}>{d}</span>
               </div>
             ))}
           </div>
-          <button style={S.btn} onClick={onStart} className="btn">
-            Begin My Assessment — ${PRICE}
-          </button>
-          <p style={S.fine}>
-            Your card is held at checkout and charged only when your report is ready.<br />
-            One-time payment. No subscriptions.
-          </p>
         </div>
       </div>
     </div>
@@ -971,10 +973,10 @@ function Landing({ onStart }) {
 function Details({ name, setName, email, setEmail, error, setError, onNext }) {
   return (
     <div style={S.center}>
-      <div style={{ ...S.container, maxWidth: 480 }} className="fadein">
+      <div style={{ ...S.container, maxWidth: 520 }} className="fadein">
         <div style={S.wwk}>Women Who Know</div>
         <h2 style={S.h2}>Let's get started.</h2>
-        <p style={{ ...S.body, marginBottom: 36 }}>Enter your details to access the assessment.</p>
+        <p style={{ ...S.body, marginBottom: 48 }}>Enter your details to access the assessment.</p>
         <div style={S.field}>
           <label style={S.label}>Your name</label>
           <input style={S.input} value={name} onChange={e => { setName(e.target.value); setError(""); }} placeholder="First name is fine" />
@@ -985,6 +987,7 @@ function Details({ name, setName, email, setEmail, error, setError, onNext }) {
         </div>
         {error && <p style={S.err}>{error}</p>}
         <button style={S.btn} onClick={onNext} className="btn">Continue →</button>
+        <p style={S.fine}>Your report will be emailed to you within one business day.</p>
       </div>
     </div>
   );
@@ -1453,8 +1456,8 @@ function Report({ name, sections, scores, rawReport }) {
 
 const COLORS = {
   CLEAR: "#B8956A",
-  WORTHY: "#7A6248",
-  WEALTHY: "#2C2C2C",
+  WORTHY: "#2B9BAA",
+  WEALTHY: "#1C1A17",
   gold: "#B8956A",
   dark: "#1C1A17",
   bg: "#F7F4EF",
@@ -1468,11 +1471,12 @@ const COLORS = {
 };
 
 const S = {
+  // ── Nav ──────────────────────────────────────────────
   topNav: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 48px",
+    padding: "0 56px",
     height: 68,
     background: COLORS.white,
     borderBottom: "1px solid rgba(184,149,106,0.2)",
@@ -1497,278 +1501,285 @@ const S = {
     letterSpacing: "0.1em",
     textTransform: "uppercase",
     textDecoration: "none",
-    padding: "10px 20px",
+    padding: "12px 24px",
     border: "none",
     cursor: "pointer",
     fontFamily: "'DM Sans', sans-serif",
-    borderRadius: 2,
   },
+  // ── App shell ─────────────────────────────────────────
   app: {
     fontFamily: "'DM Sans', sans-serif",
     minHeight: "100vh",
-    background: COLORS.bg,
+    background: COLORS.white,
     color: COLORS.dark,
   },
+  // ── Centered wrapper for Details / Payment ────────────
   center: {
-    minHeight: "100vh",
+    minHeight: "calc(100vh - 68px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "48px 20px",
+    padding: "72px 24px",
+    background: COLORS.white,
   },
   container: {
     width: "100%",
   },
+  // ── Brand label ───────────────────────────────────────
   wwk: {
-    fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 11,
-    fontWeight: 600,
-    letterSpacing: 7,
-    color: COLORS.gold,
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: 10,
+    fontWeight: 500,
+    letterSpacing: "0.2em",
+    color: COLORS.teal,
     textTransform: "uppercase",
-    marginBottom: 40,
-    textAlign: "center",
+    marginBottom: 32,
   },
   wwkSm: {
-    fontFamily: "'Cormorant Garamond', serif",
+    fontFamily: "'DM Sans', sans-serif",
     fontSize: 10,
-    fontWeight: 600,
-    letterSpacing: 5,
-    color: COLORS.gold,
+    fontWeight: 500,
+    letterSpacing: "0.2em",
+    color: COLORS.teal,
     textTransform: "uppercase",
   },
+  // ── Typography ────────────────────────────────────────
   h1: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: "clamp(44px, 7vw, 72px)",
+    fontSize: "clamp(40px, 6vw, 68px)",
     fontWeight: 300,
-    lineHeight: 1.05,
+    lineHeight: 1.08,
     color: COLORS.dark,
-    marginBottom: 20,
-    textAlign: "center",
+    marginBottom: 28,
   },
   h2: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: "clamp(32px, 5vw, 48px)",
+    fontSize: "clamp(30px, 4vw, 48px)",
     fontWeight: 300,
     lineHeight: 1.15,
     color: COLORS.dark,
-    marginBottom: 12,
-    textAlign: "center",
+    marginBottom: 20,
   },
   lead: {
-    fontSize: 19,
+    fontSize: 18,
     fontWeight: 300,
     color: COLORS.inkLight,
-    lineHeight: 1.5,
-    marginBottom: 28,
-    textAlign: "center",
+    lineHeight: 1.65,
+    marginBottom: 24,
   },
   body: {
     fontSize: 16,
     fontWeight: 300,
     color: COLORS.inkLight,
-    lineHeight: 1.75,
+    lineHeight: 1.8,
     marginBottom: 16,
-    textAlign: "center",
   },
+  // ── Landing pillars ───────────────────────────────────
   pillars: {
     display: "flex",
     gap: 12,
-    justifyContent: "center",
     flexWrap: "wrap",
-    margin: "32px 0 36px",
+    margin: "40px 0 48px",
   },
   pillar: {
     border: "1px solid " + COLORS.border,
-    borderRadius: 2,
-    padding: "12px 18px",
+    padding: "14px 20px",
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
     gap: 5,
-    minWidth: 130,
-    background: COLORS.white,
+    minWidth: 140,
   },
   pillarLabel: {
     fontSize: 10,
-    fontWeight: 700,
-    letterSpacing: 2.5,
+    fontWeight: 600,
+    letterSpacing: "0.18em",
+    textTransform: "uppercase",
   },
   pillarSub: {
-    fontSize: 11,
+    fontSize: 12,
     color: COLORS.muted,
+    fontWeight: 300,
   },
+  // ── Buttons ───────────────────────────────────────────
   btn: {
     display: "block",
     width: "100%",
     background: COLORS.teal,
     color: COLORS.white,
     border: "none",
-    padding: "18px 32px",
-    fontSize: 15,
+    padding: "20px 32px",
+    fontSize: 12,
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: 500,
-    letterSpacing: 0.3,
+    letterSpacing: "0.1em",
+    textTransform: "uppercase",
     cursor: "pointer",
-    borderRadius: 2,
-    marginTop: 24,
+    marginTop: 32,
     textAlign: "center",
-    textDecoration: "none",
-    transition: "all 0.2s ease",
+    transition: "background 0.2s ease",
   },
   fine: {
     fontSize: 12,
     color: COLORS.muted,
     marginTop: 16,
-    lineHeight: 1.6,
-    textAlign: "center",
+    lineHeight: 1.7,
   },
+  // ── Form fields ───────────────────────────────────────
   field: {
-    marginBottom: 20,
+    marginBottom: 28,
   },
   label: {
     display: "block",
-    fontSize: 11,
-    letterSpacing: 1.2,
-    color: COLORS.muted,
-    marginBottom: 8,
+    fontSize: 10,
+    letterSpacing: "0.14em",
+    color: COLORS.teal,
+    marginBottom: 10,
     textTransform: "uppercase",
     fontWeight: 500,
   },
   input: {
     width: "100%",
-    padding: "14px 16px",
+    padding: "16px 18px",
     border: "1px solid " + COLORS.border,
-    borderRadius: 2,
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: 300,
     background: COLORS.white,
     color: COLORS.dark,
+    outline: "none",
     transition: "border-color 0.2s",
+    boxSizing: "border-box",
   },
   select: {
     width: "100%",
-    padding: "14px 16px",
+    padding: "16px 18px",
     border: "1px solid " + COLORS.border,
-    borderRadius: 2,
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: 300,
     background: COLORS.white,
     color: COLORS.dark,
     cursor: "pointer",
     appearance: "none",
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a7a' fill='none' stroke-width='1.5'/%3E%3C/svg%3E")`,
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A837A' fill='none' stroke-width='1.5'/%3E%3C/svg%3E")`,
     backgroundRepeat: "no-repeat",
-    backgroundPosition: "right 16px center",
+    backgroundPosition: "right 18px center",
+    boxSizing: "border-box",
   },
+  // ── Payment ───────────────────────────────────────────
   payBox: {
-    border: "1px solid " + COLORS.gold,
-    borderRadius: 2,
-    padding: "24px",
-    margin: "24px 0",
-    background: "rgba(184, 149, 106, 0.06)",
-    textAlign: "center",
+    borderTop: "1px solid " + COLORS.border,
+    borderBottom: "1px solid " + COLORS.border,
+    padding: "32px 0",
+    margin: "32px 0",
   },
   payAmount: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 52,
+    fontSize: 64,
     fontWeight: 300,
     color: COLORS.dark,
     lineHeight: 1,
   },
   payNote: {
-    fontSize: 13,
+    fontSize: 14,
     color: COLORS.muted,
-    marginTop: 8,
-    lineHeight: 1.6,
+    marginTop: 10,
+    lineHeight: 1.65,
+    fontWeight: 300,
   },
   err: {
-    color: "#b44",
+    color: "#c0392b",
     fontSize: 13,
-    marginTop: 8,
+    marginTop: 12,
+    padding: "12px 16px",
+    background: "#fdf0ef",
+    border: "1px solid #f5c6c2",
   },
+  // ── Assessment screen ─────────────────────────────────
   assessScreen: {
     minHeight: "100vh",
     display: "flex",
     flexDirection: "column",
-    background: COLORS.bg,
+    background: COLORS.white,
   },
   assessHeader: {
     display: "flex",
     alignItems: "center",
-    gap: 16,
-    padding: "20px 32px",
+    gap: 20,
+    padding: "0 56px",
+    height: 68,
     borderBottom: "1px solid " + COLORS.border,
     background: COLORS.white,
+    position: "sticky",
+    top: 0,
+    zIndex: 100,
   },
   progressWrap: {
     flex: 1,
     height: 2,
     background: COLORS.border,
-    borderRadius: 1,
     overflow: "hidden",
   },
   progressBar: {
     height: "100%",
-    background: COLORS.gold,
-    borderRadius: 1,
+    background: COLORS.teal,
     transition: "width 0.4s ease",
   },
   progressTxt: {
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.muted,
     whiteSpace: "nowrap",
-    letterSpacing: 0.5,
+    letterSpacing: "0.05em",
+    fontWeight: 400,
   },
   assessBody: {
     flex: 1,
-    maxWidth: 640,
+    maxWidth: 680,
     width: "100%",
     margin: "0 auto",
-    padding: "52px 24px 80px",
+    padding: "72px 32px 96px",
   },
   qText: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: "clamp(24px, 4vw, 36px)",
+    fontSize: "clamp(26px, 4vw, 40px)",
     fontWeight: 300,
-    lineHeight: 1.25,
+    lineHeight: 1.2,
     color: COLORS.dark,
-    marginBottom: 28,
+    marginBottom: 36,
   },
   hint: {
     fontSize: 13,
     color: COLORS.muted,
     fontStyle: "italic",
     fontWeight: 300,
-    lineHeight: 1.6,
-    marginTop: 12,
-    marginBottom: 4,
+    lineHeight: 1.65,
+    marginTop: 16,
+    paddingTop: 16,
+    borderTop: "1px solid " + COLORS.border,
   },
   textarea: {
     width: "100%",
-    padding: "16px",
+    padding: "18px",
     border: "1px solid " + COLORS.border,
-    borderRadius: 2,
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: 300,
-    lineHeight: 1.7,
+    lineHeight: 1.75,
     color: COLORS.dark,
     background: COLORS.white,
     resize: "vertical",
+    outline: "none",
     transition: "border-color 0.2s",
+    boxSizing: "border-box",
   },
   choices: {
     display: "flex",
     flexDirection: "column",
-    gap: 10,
+    gap: 8,
   },
   choice: {
     border: "1px solid " + COLORS.border,
-    borderRadius: 2,
-    padding: "16px 20px",
+    padding: "18px 22px",
     textAlign: "left",
     background: COLORS.white,
     cursor: "pointer",
@@ -1776,12 +1787,13 @@ const S = {
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: 300,
     color: COLORS.dark,
-    lineHeight: 1.4,
+    lineHeight: 1.5,
     transition: "all 0.15s ease",
   },
   choiceSelected: {
-    borderColor: COLORS.gold,
-    background: "rgba(184, 149, 106, 0.08)",
+    borderColor: COLORS.teal,
+    background: COLORS.tealPale,
+    color: COLORS.dark,
   },
   stemRow: {
     display: "flex",
@@ -1800,83 +1812,85 @@ const S = {
     display: "flex",
     alignItems: "center",
     gap: 16,
-    marginTop: 28,
+    marginTop: 36,
     flexWrap: "wrap",
   },
   backBtn: {
     background: "none",
     border: "none",
     color: COLORS.muted,
-    fontSize: 14,
+    fontSize: 13,
     cursor: "pointer",
-    padding: "8px 0",
+    padding: "10px 0",
     fontFamily: "'DM Sans', sans-serif",
+    letterSpacing: "0.05em",
   },
+  // ── Generating / spinner ──────────────────────────────
   spinner: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     border: "2px solid " + COLORS.border,
-    borderTopColor: COLORS.gold,
+    borderTopColor: COLORS.teal,
     borderRadius: "50%",
     animation: "spin 0.9s linear infinite",
-    margin: "0 auto 32px",
+    margin: "0 auto 40px",
   },
+  // ── Report ────────────────────────────────────────────
   reportWrap: {
-    background: COLORS.bg,
+    background: COLORS.white,
     minHeight: "100vh",
-    maxWidth: 760,
+    maxWidth: 800,
     margin: "0 auto",
-    padding: "64px 24px 96px",
+    padding: "80px 40px 120px",
   },
   reportHeader: {
-    textAlign: "center",
-    marginBottom: 56,
-    paddingBottom: 48,
+    marginBottom: 72,
+    paddingBottom: 56,
     borderBottom: "1px solid " + COLORS.border,
   },
   reportH1: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: "clamp(30px, 5vw, 54px)",
+    fontSize: "clamp(32px, 5vw, 56px)",
     fontWeight: 300,
     color: COLORS.dark,
-    lineHeight: 1.15,
-    marginBottom: 12,
-    marginTop: 24,
+    lineHeight: 1.1,
+    marginBottom: 16,
+    marginTop: 20,
   },
   reportSub: {
-    fontSize: 11,
-    letterSpacing: 3,
-    color: COLORS.gold,
+    fontSize: 10,
+    letterSpacing: "0.2em",
+    color: COLORS.teal,
     textTransform: "uppercase",
     fontWeight: 500,
   },
   scoreRow: {
     display: "flex",
     gap: 2,
-    marginBottom: 64,
+    marginBottom: 72,
+    marginTop: 48,
   },
   scoreCard: {
     flex: 1,
-    background: COLORS.white,
-    padding: "32px 12px",
+    background: COLORS.bg,
+    padding: "36px 12px",
     textAlign: "center",
-    borderRadius: 2,
   },
   scoreNum: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 52,
+    fontSize: 56,
     fontWeight: 300,
     lineHeight: 1,
   },
   scoreOf: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 300,
   },
   scorePillar: {
     fontSize: 9,
-    letterSpacing: 2.5,
-    fontWeight: 700,
-    marginTop: 10,
+    letterSpacing: "0.2em",
+    fontWeight: 600,
+    marginTop: 12,
     textTransform: "uppercase",
   },
   scoreSub: {
@@ -1885,57 +1899,56 @@ const S = {
     marginTop: 4,
   },
   reportBody: {
-    marginBottom: 64,
+    marginBottom: 72,
   },
   reportSection: {
-    marginBottom: 52,
-    paddingBottom: 52,
+    marginBottom: 64,
+    paddingBottom: 64,
     borderBottom: "1px solid " + COLORS.border,
   },
   secTitle: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 28,
-    fontWeight: 400,
+    fontSize: 32,
+    fontWeight: 300,
     color: COLORS.dark,
-    marginBottom: 20,
-    letterSpacing: 0.3,
+    marginBottom: 24,
+    lineHeight: 1.2,
   },
   reportP: {
     fontSize: 16,
     fontWeight: 300,
-    lineHeight: 1.85,
-    color: "#2a2a2a",
-    marginBottom: 18,
+    lineHeight: 1.9,
+    color: COLORS.inkLight,
+    marginBottom: 20,
   },
+  // ── End CTA (dark section) ────────────────────────────
   cta: {
     background: COLORS.dark,
-    color: COLORS.bg,
-    padding: "56px 48px",
-    borderRadius: 2,
-    marginBottom: 56,
-    textAlign: "center",
+    color: COLORS.white,
+    padding: "72px 56px",
+    marginBottom: 72,
   },
   ctaH: {
     fontFamily: "'Cormorant Garamond', serif",
-    fontSize: 40,
+    fontSize: 44,
     fontWeight: 300,
-    color: COLORS.gold,
-    marginBottom: 20,
+    color: COLORS.white,
+    marginBottom: 24,
+    lineHeight: 1.1,
   },
   ctaP: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 300,
     lineHeight: 1.8,
-    color: "#ccc",
+    color: "rgba(255,255,255,0.7)",
     marginBottom: 16,
-    maxWidth: 500,
-    margin: "0 auto 16px",
+    maxWidth: 520,
   },
   waitlistBtn: {
     display: "inline-block",
-    marginTop: 28,
-    background: COLORS.gold,
-    color: COLORS.dark,
+    marginTop: 32,
+    background: COLORS.teal,
+    color: COLORS.white,
     padding: "16px 36px",
     fontSize: 14,
     fontFamily: "'DM Sans', sans-serif",
