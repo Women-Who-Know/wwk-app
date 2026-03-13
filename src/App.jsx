@@ -924,39 +924,45 @@ export default function App() {
 
 function Landing({ onStart }) {
   return (
-    <div style={S.center}>
-      <div style={{ ...S.container, maxWidth: 600, textAlign: "center" }} className="fadein">
-        <div style={S.wwk}>Women Who Know</div>
-        <h1 style={S.h1}>
-          Where are you<br /><em>actually</em> stuck?
-        </h1>
-        <p style={S.lead}>
-          Not where you think you're stuck.<br />Where the numbers say you're stuck.
-        </p>
-        <p style={S.body}>
-          The Founder Benchmark Assessment gives you a personalised diagnostic report — 
-          where you sit against industry benchmarks, where your revenue is leaking, 
-          and exactly what to do about it.
-        </p>
-        <p style={S.body}>
-          18 questions. Your report delivered within one business day. 
-          Written specifically for you — not a template.
-        </p>
-        <div style={S.pillars}>
-          {[["CLEAR", "Positioning & Clarity"], ["WORTHY", "Pricing & Self-Worth"], ["WEALTHY", "Operations & Scale"]].map(([p, d]) => (
-            <div key={p} style={S.pillar}>
-              <span style={{ ...S.pillarLabel, color: COLORS[p] }}>{p}</span>
-              <span style={S.pillarSub}>{d}</span>
-            </div>
-          ))}
+    <div>
+      <nav style={S.topNav}>
+        <span style={S.navLogo}>Women Who Know</span>
+        <button style={S.navBtn} onClick={onStart}>Begin Assessment — $57</button>
+      </nav>
+      <div style={{ ...S.center, minHeight: "calc(100vh - 68px)" }}>
+        <div style={{ ...S.container, maxWidth: 600, textAlign: "center" }} className="fadein">
+          <div style={S.wwk}>Women Who Know</div>
+          <h1 style={S.h1}>
+            Where are you<br /><em>actually</em> stuck?
+          </h1>
+          <p style={S.lead}>
+            Not where you think you're stuck.<br />Where the numbers say you're stuck.
+          </p>
+          <p style={S.body}>
+            The Founder Benchmark Assessment gives you a personalised diagnostic report — 
+            where you sit against industry benchmarks, where your revenue is leaking, 
+            and exactly what to do about it.
+          </p>
+          <p style={S.body}>
+            18 questions. Your report delivered within one business day. 
+            Written specifically for you — not a template.
+          </p>
+          <div style={S.pillars}>
+            {[["CLEAR", "Positioning & Clarity"], ["WORTHY", "Pricing & Self-Worth"], ["WEALTHY", "Operations & Scale"]].map(([p, d]) => (
+              <div key={p} style={S.pillar}>
+                <span style={{ ...S.pillarLabel, color: COLORS[p] }}>{p}</span>
+                <span style={S.pillarSub}>{d}</span>
+              </div>
+            ))}
+          </div>
+          <button style={S.btn} onClick={onStart} className="btn">
+            Begin My Assessment — ${PRICE}
+          </button>
+          <p style={S.fine}>
+            Your card is held at checkout and charged only when your report is ready.<br />
+            One-time payment. No subscriptions.
+          </p>
         </div>
-        <button style={S.btn} onClick={onStart} className="btn">
-          Begin My Assessment — ${PRICE}
-        </button>
-        <p style={S.fine}>
-          Your card is held at checkout and charged only when your report is ready.<br />
-          One-time payment. No subscriptions.
-        </p>
       </div>
     </div>
   );
@@ -1450,14 +1456,53 @@ const COLORS = {
   WORTHY: "#7A6248",
   WEALTHY: "#2C2C2C",
   gold: "#B8956A",
-  dark: "#1C1C1C",
-  bg: "#F4F0E8",
+  dark: "#1C1A17",
+  bg: "#F7F4EF",
   white: "#FFFFFF",
-  muted: "#7a7a7a",
+  muted: "#8A837A",
   border: "#E0D8CC",
+  teal: "#2B9BAA",
+  tealDark: "#1E7A88",
+  tealPale: "#EAF6F8",
+  inkLight: "#4A4540",
 };
 
 const S = {
+  topNav: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 48px",
+    height: 68,
+    background: COLORS.white,
+    borderBottom: "1px solid rgba(184,149,106,0.2)",
+    position: "sticky",
+    top: 0,
+    zIndex: 100,
+  },
+  navLogo: {
+    fontFamily: "'Cormorant Garamond', serif",
+    fontSize: 10,
+    fontWeight: 500,
+    letterSpacing: "0.22em",
+    textTransform: "uppercase",
+    color: COLORS.gold,
+    textDecoration: "none",
+  },
+  navBtn: {
+    background: COLORS.teal,
+    color: COLORS.white,
+    fontSize: 11,
+    fontWeight: 500,
+    letterSpacing: "0.1em",
+    textTransform: "uppercase",
+    textDecoration: "none",
+    padding: "10px 20px",
+    border: "none",
+    cursor: "pointer",
+    fontFamily: "'DM Sans', sans-serif",
+    borderRadius: 2,
+  },
   app: {
     fontFamily: "'DM Sans', sans-serif",
     minHeight: "100vh",
@@ -1513,7 +1558,7 @@ const S = {
   lead: {
     fontSize: 19,
     fontWeight: 300,
-    color: "#555",
+    color: COLORS.inkLight,
     lineHeight: 1.5,
     marginBottom: 28,
     textAlign: "center",
@@ -1521,7 +1566,7 @@ const S = {
   body: {
     fontSize: 16,
     fontWeight: 300,
-    color: "#4a4a4a",
+    color: COLORS.inkLight,
     lineHeight: 1.75,
     marginBottom: 16,
     textAlign: "center",
@@ -1556,8 +1601,8 @@ const S = {
   btn: {
     display: "block",
     width: "100%",
-    background: COLORS.dark,
-    color: COLORS.bg,
+    background: COLORS.teal,
+    color: COLORS.white,
     border: "none",
     padding: "18px 32px",
     fontSize: 15,
