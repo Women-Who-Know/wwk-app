@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // API calls handled server-side via /api routes
 
@@ -805,6 +805,7 @@ export default function App() {
   const [sections, setSections] = useState([]);
   const [error, setError] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [paymentIntentId, setPaymentIntentId] = useState("");
 
   const q = QUESTIONS[currentQ];
   const progress = (currentQ / TOTAL) * 100;
@@ -894,7 +895,7 @@ export default function App() {
       {screen === "payment" && (
         <Payment
           name={name} email={email}
-          onPay={() => { setAnswers({}); setCurrentQ(0); setScreen("assessment"); }}
+          onPay={(intentId) => { setPaymentIntentId(intentId); setAnswers({}); setCurrentQ(0); setScreen("assessment"); }}
           error={error} setError={setError}
         />
       )}
@@ -994,25 +995,107 @@ function Details({ name, setName, email, setEmail, error, setError, onNext }) {
 }
 
 function Payment({ name, email, onPay, error, setError }) {
-  const [cardName, setCardName] = useState(name);
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvc, setCvc] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [stripe, setStripe] = useState(null);
+  const [elements, setElements] = useState(null);
+  const [clientSecret, setClientSecret] = useState("");
+  const cardRef = useRef(null);
+  const cardElementRef = useRef(null);
 
-  function formatCard(val) {
-    return val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
-  }
-  function formatExpiry(val) {
-    const v = val.replace(/\D/g, "").slice(0, 4);
-    return v.length >= 3 ? v.slice(0, 2) + "/" + v.slice(2) : v;
-  }
+  // Load Stripe.js and create PaymentIntent on mount
+  useEffect(() => {
+    let stripeInstance = null;
+    let cardElement = null;
 
-  function handlePay() {
-    // In production: Stripe.js creates a PaymentMethod, backend creates PaymentIntent with capture_method: 'manual'
-    // Card is authorized but not captured until report is delivered
-    if (!cardName || !cardNumber || !expiry || !cvc) { setError("Please complete all card fields."); return; }
+    async function init() {
+      try {
+        // Load Stripe.js
+        if (!window.Stripe) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = "https://js.stripe.com/v3/";
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+        stripeInstance = window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+        setStripe(stripeInstance);
+
+        // Create PaymentIntent on server
+        const res = await fetch("/api/create-payment-intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email }),
+        });
+        if (!res.ok) throw new Error("Could not initialise payment.");
+        const data = await res.json();
+        setClientSecret(data.clientSecret);
+
+        // Mount Stripe Card Element
+        const els = stripeInstance.elements();
+        setElements(els);
+        cardElement = els.create("card", {
+          style: {
+            base: {
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "16px",
+              fontWeight: "300",
+              color: "#1C1A17",
+              "::placeholder": { color: "#8A837A" },
+              lineHeight: "1.6",
+            },
+            invalid: { color: "#c0392b" },
+          },
+          hidePostalCode: true,
+        });
+        cardElementRef.current = cardElement;
+        cardElement.mount(cardRef.current);
+      } catch (e) {
+        setError(e.message || "Payment setup failed. Please refresh and try again.");
+      }
+    }
+
+    init();
+
+    return () => {
+      if (cardElementRef.current) {
+        try { cardElementRef.current.unmount(); } catch {}
+      }
+    };
+  }, []);
+
+  async function handlePay() {
+    if (!stripe || !clientSecret || !cardElementRef.current) {
+      setError("Payment not ready. Please wait a moment and try again.");
+      return;
+    }
+    setLoading(true);
     setError("");
-    onPay();
+
+    try {
+      const { error: stripeErr, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: cardElementRef.current,
+            billing_details: { name, email },
+          },
+        }
+      );
+
+      if (stripeErr) {
+        setError(stripeErr.message);
+        setLoading(false);
+        return;
+      }
+
+      // Authorization successful — paymentIntent is in requires_capture state
+      onPay(paymentIntent.id);
+    } catch (e) {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -1021,33 +1104,40 @@ function Payment({ name, email, onPay, error, setError }) {
         <div style={S.wwk}>Women Who Know</div>
         <h2 style={S.h2}>Secure your spot.</h2>
         <div style={S.payBox}>
-          <div style={S.payAmount}>${PRICE}</div>
-          <div style={S.payNote}>Your card will be held but not charged until your report is delivered within one business day.</div>
+          <div style={S.payAmount}>${PRICE} CAD</div>
+          <div style={S.payNote}>Your card is authorized now and charged only when your report is ready — within one business day.</div>
         </div>
+
         <div style={S.field}>
-          <label style={S.label}>Name on card</label>
-          <input style={S.input} value={cardName} onChange={e => setCardName(e.target.value)} />
+          <label style={S.label}>Card details</label>
+          <div
+            ref={cardRef}
+            style={{
+              ...S.input,
+              padding: "18px",
+              minHeight: 56,
+              display: "flex",
+              alignItems: "center",
+            }}
+          />
         </div>
-        <div style={S.field}>
-          <label style={S.label}>Card number</label>
-          <input style={S.input} value={cardNumber} onChange={e => setCardNumber(formatCard(e.target.value))} placeholder="0000 0000 0000 0000" maxLength={19} />
-        </div>
-        <div style={{ display: "flex", gap: 16 }}>
-          <div style={{ ...S.field, flex: 1 }}>
-            <label style={S.label}>Expiry</label>
-            <input style={S.input} value={expiry} onChange={e => setExpiry(formatExpiry(e.target.value))} placeholder="MM/YY" maxLength={5} />
-          </div>
-          <div style={{ ...S.field, flex: 1 }}>
-            <label style={S.label}>CVC</label>
-            <input style={S.input} value={cvc} onChange={e => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="000" maxLength={4} />
-          </div>
-        </div>
+
+        {!clientSecret && !error && (
+          <p style={{ ...S.fine, marginTop: 0, marginBottom: 16 }}>Setting up secure payment…</p>
+        )}
+
         {error && <p style={S.err}>{error}</p>}
-        <button style={S.btn} onClick={handlePay} className="btn">
-          Authorize & Begin Assessment →
+
+        <button
+          style={{ ...S.btn, opacity: loading || !clientSecret ? 0.6 : 1 }}
+          onClick={handlePay}
+          disabled={loading || !clientSecret}
+        >
+          {loading ? "Authorizing…" : `Authorize & Begin Assessment →`}
         </button>
         <p style={S.fine}>
-          Secured by Stripe. Your card is authorized now and charged only when your report is ready.
+          Secured by Stripe. Your card is held and only charged when your report is delivered.<br />
+          30-day money-back guarantee. One-time payment. No subscriptions.
         </p>
       </div>
     </div>
