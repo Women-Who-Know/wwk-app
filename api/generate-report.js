@@ -17,18 +17,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. Verify the payment intent is authorized (not yet captured)
-    const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    if (!["requires_capture", "succeeded"].includes(intent.status)) {
-      return res.status(402).json({ error: "Payment not authorized" });
+    const isBeta = paymentIntentId === "beta-free";
+
+    // 1. Verify the payment intent is authorized (skip for beta)
+    if (!isBeta) {
+      const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      if (!["requires_capture", "succeeded"].includes(intent.status)) {
+        return res.status(402).json({ error: "Payment not authorized" });
+      }
     }
 
     // 2. Generate the report via Claude (server-side, key never exposed)
     const reportContent = await generateReport(answers, name, industry, businessType, yearsInBusiness);
 
-    // 3. Capture the payment now that we have a real report
-    if (intent.status === "requires_capture") {
-      await stripe.paymentIntents.capture(paymentIntentId);
+    // 3. Capture the payment now that we have a real report (skip for beta)
+    if (!isBeta) {
+      const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      if (intent.status === "requires_capture") {
+        await stripe.paymentIntents.capture(paymentIntentId);
+      }
     }
 
     // 4. Send admin notification for review before delivery

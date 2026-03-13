@@ -997,19 +997,31 @@ function Details({ name, setName, email, setEmail, error, setError, onNext }) {
 function Payment({ name, email, onPay, error, setError }) {
   const [loading, setLoading] = useState(false);
   const [stripe, setStripe] = useState(null);
-  const [elements, setElements] = useState(null);
   const [clientSecret, setClientSecret] = useState("");
+  const [coupon, setCoupon] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
   const cardRef = useRef(null);
   const cardElementRef = useRef(null);
 
-  // Load Stripe.js and create PaymentIntent on mount
+  const VALID_COUPON = "WWKBETA";
+
+  function handleCouponApply() {
+    if (coupon.trim().toUpperCase() === VALID_COUPON) {
+      setCouponApplied(true);
+      setError("");
+    } else {
+      setError("Invalid coupon code.");
+    }
+  }
+
+  // Load Stripe.js and create PaymentIntent on mount — only if no coupon
   useEffect(() => {
-    let stripeInstance = null;
+    if (couponApplied) return;
+
     let cardElement = null;
 
     async function init() {
       try {
-        // Load Stripe.js
         if (!window.Stripe) {
           await new Promise((resolve, reject) => {
             const script = document.createElement("script");
@@ -1019,10 +1031,9 @@ function Payment({ name, email, onPay, error, setError }) {
             document.head.appendChild(script);
           });
         }
-        stripeInstance = window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+        const stripeInstance = window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
         setStripe(stripeInstance);
 
-        // Create PaymentIntent on server
         const res = await fetch("/api/create-payment-intent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1032,9 +1043,7 @@ function Payment({ name, email, onPay, error, setError }) {
         const data = await res.json();
         setClientSecret(data.clientSecret);
 
-        // Mount Stripe Card Element
         const els = stripeInstance.elements();
-        setElements(els);
         cardElement = els.create("card", {
           style: {
             base: {
@@ -1050,7 +1059,7 @@ function Payment({ name, email, onPay, error, setError }) {
           hidePostalCode: true,
         });
         cardElementRef.current = cardElement;
-        cardElement.mount(cardRef.current);
+        if (cardRef.current) cardElement.mount(cardRef.current);
       } catch (e) {
         setError(e.message || "Payment setup failed. Please refresh and try again.");
       }
@@ -1063,9 +1072,15 @@ function Payment({ name, email, onPay, error, setError }) {
         try { cardElementRef.current.unmount(); } catch {}
       }
     };
-  }, []);
+  }, [couponApplied]);
 
   async function handlePay() {
+    // Beta coupon — bypass Stripe entirely
+    if (couponApplied) {
+      onPay("beta-free");
+      return;
+    }
+
     if (!stripe || !clientSecret || !cardElementRef.current) {
       setError("Payment not ready. Please wait a moment and try again.");
       return;
@@ -1090,7 +1105,6 @@ function Payment({ name, email, onPay, error, setError }) {
         return;
       }
 
-      // Authorization successful — paymentIntent is in requires_capture state
       onPay(paymentIntent.id);
     } catch (e) {
       setError("Something went wrong. Please try again.");
@@ -1103,41 +1117,73 @@ function Payment({ name, email, onPay, error, setError }) {
       <div style={{ ...S.container, maxWidth: 480 }} className="fadein">
         <div style={S.wwk}>Women Who Know</div>
         <h2 style={S.h2}>Secure your spot.</h2>
-        <div style={S.payBox}>
-          <div style={S.payAmount}>${PRICE} CAD</div>
-          <div style={S.payNote}>Your card is authorized now and charged only when your report is ready — within one business day.</div>
+
+        {/* Coupon field */}
+        <div style={{ display: "flex", gap: 12, marginBottom: 28 }}>
+          <div style={{ flex: 1 }}>
+            <label style={S.label}>Coupon code</label>
+            <input
+              style={{ ...S.input, ...(couponApplied ? { borderColor: COLORS.teal, background: COLORS.tealPale } : {}) }}
+              value={coupon}
+              onChange={e => { setCoupon(e.target.value.toUpperCase()); setCouponApplied(false); setError(""); }}
+              placeholder="Have a code?"
+              disabled={couponApplied}
+            />
+          </div>
+          {!couponApplied && (
+            <div style={{ display: "flex", alignItems: "flex-end" }}>
+              <button
+                style={{ ...S.btn, width: "auto", marginTop: 0, padding: "16px 24px", fontSize: 11 }}
+                onClick={handleCouponApply}
+                disabled={!coupon.trim()}
+              >
+                Apply
+              </button>
+            </div>
+          )}
         </div>
 
-        <div style={S.field}>
-          <label style={S.label}>Card details</label>
-          <div
-            ref={cardRef}
-            style={{
-              ...S.input,
-              padding: "18px",
-              minHeight: 56,
-              display: "flex",
-              alignItems: "center",
-            }}
-          />
-        </div>
+        {couponApplied && (
+          <div style={{ padding: "16px 20px", background: COLORS.tealPale, borderLeft: `3px solid ${COLORS.teal}`, marginBottom: 28 }}>
+            <p style={{ ...S.body, textAlign: "left", margin: 0, fontSize: 14, color: COLORS.teal, fontWeight: 400 }}>
+              ✓ Beta access applied — your report is complimentary.
+            </p>
+          </div>
+        )}
 
-        {!clientSecret && !error && (
-          <p style={{ ...S.fine, marginTop: 0, marginBottom: 16 }}>Setting up secure payment…</p>
+        {!couponApplied && (
+          <>
+            <div style={S.payBox}>
+              <div style={S.payAmount}>${PRICE} CAD</div>
+              <div style={S.payNote}>Your card is authorized now and charged only when your report is ready — within one business day.</div>
+            </div>
+            <div style={S.field}>
+              <label style={S.label}>Card details</label>
+              <div
+                ref={cardRef}
+                style={{ ...S.input, padding: "18px", minHeight: 56, display: "flex", alignItems: "center" }}
+              />
+            </div>
+            {!clientSecret && !error && (
+              <p style={{ ...S.fine, marginBottom: 16 }}>Setting up secure payment…</p>
+            )}
+          </>
         )}
 
         {error && <p style={S.err}>{error}</p>}
 
         <button
-          style={{ ...S.btn, opacity: loading || !clientSecret ? 0.6 : 1 }}
+          style={{ ...S.btn, opacity: loading || (!couponApplied && !clientSecret) ? 0.6 : 1 }}
           onClick={handlePay}
-          disabled={loading || !clientSecret}
+          disabled={loading || (!couponApplied && !clientSecret)}
         >
-          {loading ? "Authorizing…" : `Authorize & Begin Assessment →`}
+          {loading ? "Authorizing…" : couponApplied ? "Begin Assessment →" : "Authorize & Begin Assessment →"}
         </button>
         <p style={S.fine}>
-          Secured by Stripe. Your card is held and only charged when your report is delivered.<br />
-          30-day money-back guarantee. One-time payment. No subscriptions.
+          {couponApplied
+            ? "Beta access. Your report will be delivered within one business day."
+            : "Secured by Stripe. 30-day money-back guarantee. One-time payment. No subscriptions."
+          }
         </p>
       </div>
     </div>
