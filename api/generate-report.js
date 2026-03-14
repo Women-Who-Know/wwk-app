@@ -64,8 +64,53 @@ export default async function handler(req, res) {
 }
 
 async function generateReport(answers, name, industry, businessType, yearsInBusiness) {
+  // Map question IDs to human-readable labels and format complex answers
+  const questionLabels = {
+    q1_industry: "Industry / sector",
+    q2_years: "Years in business",
+    q3_employees: "Team size and structure",
+    q4_idealclient: "Ideal client description",
+    q5_whatyoudo: "What they say they do",
+    q6_decision: "Last decision delayed or avoided",
+    q7_offers: "Number of offers or services",
+    q8_pricing: "How they priced their highest offer and discounting behaviour",
+    q9_priceincrease: "Last price increase",
+    q10_pressure: "Response when prospect says price is too high",
+    q11_revenue: "Monthly revenue",
+    q12_chargemore: "Would charge more if...",
+    q13_source: "How clients find them",
+    q14_calls: "Discovery calls per month",
+    q15_conversion: "Conversion rate from calls",
+    q16_bottleneck: "Biggest bottleneck in the business",
+    q17_know: "What they know needs to change but haven't acted on",
+    q18_dream: "Dream scenario if time and money were no object",
+  };
+
+  function formatAnswer(id, answer) {
+    if (!answer) return "No answer provided";
+    if (typeof answer === "string") return answer;
+    if (Array.isArray(answer)) return answer.join(", ");
+    if (typeof answer === "object") {
+      // Industry answer: { sector, niche }
+      if (answer.sector || answer.niche) return `Sector: ${answer.sector || "—"} | Niche: ${answer.niche || "—"}`;
+      // Revenue answer: { range, consistency }
+      if (answer.range) return `${answer.range} / month — ${answer.consistency || ""}`;
+      // Employees answer: { count, structure }
+      if (answer.count) return `${answer.count}${answer.structure ? ` (${answer.structure})` : ""}`;
+      // Source answer: { source, data }
+      if (answer.source) return `Source: ${answer.source} | Data availability: ${answer.data || "—"}`;
+      // Offers answer: { count, primary }
+      if (answer.count) return `${answer.count} offers${answer.primary ? ` — primary: ${answer.primary}` : ""}`;
+      return JSON.stringify(answer);
+    }
+    return String(answer);
+  }
+
   const answersText = Object.entries(answers)
-    .map(([q, a]) => `${q}: ${Array.isArray(a) ? a.join(", ") : a}`)
+    .map(([id, answer]) => {
+      const label = questionLabels[id] || id;
+      return `${label}: ${formatAnswer(id, answer)}`;
+    })
     .join("\n");
 
   const message = await anthropic.messages.create({
