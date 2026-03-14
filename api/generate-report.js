@@ -113,7 +113,7 @@ async function sendAdminNotification(customerEmail, customerName, reportContent,
 
   await resend.emails.send({
     from: "WWK System <admin@womenwhoknow.ca>",
-    to: "banittaq@gmail.com",
+    to: "hello@womenwhoknow.ca",
     subject: `New Assessment Report Ready — ${customerName}`,
     html: `
       <h2>New report ready for review</h2>
