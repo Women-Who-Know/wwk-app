@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
   try {
     await resend.emails.send({
-      from: "Anitta Hamming <onboarding@resend.dev>",
+      from: "Anitta Hamming <anitta@womenwhoknow.ca>",
       to: email,
       subject: "Your WWK Founder Benchmark Assessment Report",
       html: buildReportEmail(name, decodeURIComponent(report)),

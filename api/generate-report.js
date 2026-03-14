@@ -112,7 +112,7 @@ async function sendAdminNotification(customerEmail, customerName, reportContent,
   const deliverUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/deliver-report?token=${approvalToken}&email=${encodeURIComponent(customerEmail)}&name=${encodeURIComponent(customerName)}`;
 
   await resend.emails.send({
-    from: "WWK System <onboarding@resend.dev>",
+    from: "WWK System <admin@womenwhoknow.ca>",
     to: "banittaq@gmail.com",
     subject: `New Assessment Report Ready — ${customerName}`,
     html: `
