@@ -1485,11 +1485,11 @@ function Generating({ name }) {
   const [phase, setPhase] = useState(0);
   const [dots, setDots] = useState(".");
   const phases = [
-    "Reading your answers...",
-    "Running your benchmark comparison...",
-    "Identifying your patterns...",
-    "Writing your report...",
-    "Almost ready...",
+    "Reviewing your answers...",
+    "Verifying your responses...",
+    "Preparing your submission...",
+    "Sending your answers...",
+    "Almost done...",
   ];
 
   useEffect(() => {
@@ -1505,7 +1505,7 @@ function Generating({ name }) {
         <div style={S.spinner} />
         <h2 style={S.h2}>{phases[phase]}{dots}</h2>
         <p style={S.body}>
-          {name ? `${name.split(" ")[0]}, your` : "Your"} personalised Founder Benchmark Report is being written specifically for you. This takes about 30 seconds.
+          Reviewing and sending your answers. Do not close your browser.
         </p>
       </div>
     </div>
@@ -1518,9 +1518,9 @@ function Submitted({ name, email }) {
     <div style={S.center}>
       <div style={{ ...S.container, maxWidth: 520 }} className="fadein">
         <div style={S.wwk}>Women Who Know</div>
-        <h2 style={S.h2}>{firstName}, your report is on its way.</h2>
+        <h2 style={S.h2}>Your answers have been verified and sent.</h2>
         <p style={S.lead}>
-          Your Founder Benchmark Report has been generated and is being reviewed before delivery.
+          You will receive your Founder Benchmark Assessment within one business day.
         </p>
         <div style={{ borderTop: `1px solid ${COLORS.border}`, borderBottom: `1px solid ${COLORS.border}`, padding: "32px 0", margin: "32px 0" }}>
           <p style={{ ...S.body, marginBottom: 8 }}>
@@ -1531,7 +1531,7 @@ function Submitted({ name, email }) {
           </p>
         </div>
         <p style={S.fine}>
-          Check your spam folder if you don't see it. Your report is written specifically for you — not a template. Questions? Email <a href="mailto:hello@womenwhoknow.ca" style={{ color: COLORS.teal }}>hello@womenwhoknow.ca</a>
+          Check your spam folder if you don't see it. Questions? Email <a href="mailto:hello@womenwhoknow.ca" style={{ color: COLORS.teal }}>hello@womenwhoknow.ca</a>
         </p>
       </div>
     </div>
