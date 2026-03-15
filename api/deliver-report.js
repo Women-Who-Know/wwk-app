@@ -19,6 +19,7 @@ export default async function handler(req, res) {
   try {
     // Fetch private blob using correct SDK function
     const blobResult = await get(decodedBlobUrl, {
+      access: "private",
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
@@ -31,8 +32,8 @@ export default async function handler(req, res) {
       `);
     }
 
-    // get() returns a blob Response — read the text
-    const reportContent = await blobResult.text();
+    // blobResult.stream is a ReadableStream — convert to text
+    const reportContent = await new Response(blobResult.stream).text();
 
     // Send report to customer
     const { error: sendError } = await resend.emails.send({
