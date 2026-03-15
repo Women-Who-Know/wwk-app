@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import Stripe from "stripe";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { put } from "@vercel/blob";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -38,15 +39,19 @@ export default async function handler(req, res) {
       }
     }
 
-    // 4. Send admin notification for review before delivery
+    // 4. Store report in Blob storage keyed by approval token
     const approvalToken = crypto.randomBytes(32).toString("hex");
-    await sendAdminNotification(email, name, reportContent, approvalToken, paymentIntentId);
+    const { url: blobUrl } = await put(`reports/${approvalToken}.txt`, reportContent, {
+      access: "public",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
 
-    // 5. Store report temporarily for delivery (using a simple approach)
-    // In production this would go to a database — for now admin email triggers delivery
+    // 5. Send admin notification with approve link
+    await sendAdminNotification(email, name, reportContent, approvalToken, blobUrl, paymentIntentId);
+
     res.status(200).json({
       success: true,
-      message: "Report generated and payment captured. Delivery within 24 hours.",
+      message: "Report generated and stored. Admin notified for review.",
     });
 
   } catch (err) {
@@ -153,12 +158,12 @@ ${answersText}`,
   return message.content[0].text;
 }
 
-async function sendAdminNotification(customerEmail, customerName, reportContent, approvalToken, paymentIntentId) {
-  const deliverUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/deliver-report?token=${approvalToken}&email=${encodeURIComponent(customerEmail)}&name=${encodeURIComponent(customerName)}`;
+async function sendAdminNotification(customerEmail, customerName, reportContent, approvalToken, blobUrl, paymentIntentId) {
+  const deliverUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/deliver-report?token=${approvalToken}&blobUrl=${encodeURIComponent(blobUrl)}&email=${encodeURIComponent(customerEmail)}&name=${encodeURIComponent(customerName)}`;
 
   await resend.emails.send({
     from: "WWK System <hello@womenwhoknow.ca>",
-    to: "hello@womenwhoknow.ca",
+    to: "banittaq@gmail.com",
     subject: `New Assessment Report Ready — ${customerName}`,
     html: `
       <h2>New report ready for review</h2>

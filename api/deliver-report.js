@@ -5,35 +5,59 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).end();
 
-  const { token, email, name, report } = req.query;
+  const { token, email, name, blobUrl } = req.query;
 
-  if (!token || !email || !report) {
+  if (!token || !email || !name || !blobUrl) {
     return res.status(400).send("Invalid delivery link.");
   }
 
-  // In a production system with a database, we'd validate the token here.
-  // For the MVP, the report content is passed via the admin email link.
-
   try {
+    // Fetch report from Blob storage using the direct URL
+    const blobRes = await fetch(decodeURIComponent(blobUrl));
+
+    if (!blobRes.ok) {
+      return res.status(404).send(`
+        <html><body style="font-family:sans-serif;text-align:center;padding:80px;">
+          <h2 style="color:#c0392b;">Report not found</h2>
+          <p>This report may have already been delivered, or the link has expired.</p>
+        </body></html>
+      `);
+    }
+
+    const reportContent = await blobRes.text();
+    const decodedEmail = decodeURIComponent(email);
+    const decodedName = decodeURIComponent(name);
+
+    // Send report to customer
     await resend.emails.send({
       from: "Anitta Hamming <hello@womenwhoknow.ca>",
-      to: email,
+      to: decodedEmail,
       subject: "Your WWK Founder Benchmark Assessment Report",
-      html: buildReportEmail(name, decodeURIComponent(report)),
+      html: buildReportEmail(decodedName, reportContent),
     });
 
-    // Confirm to admin
     res.status(200).send(`
       <html>
-        <body style="font-family: sans-serif; max-width: 600px; margin: 80px auto; text-align: center;">
-          <h2 style="color: #2B9BAA;">✓ Report delivered</h2>
-          <p>Your review has been sent to <strong>${email}</strong>.</p>
+        <head>
+          <style>
+            body { font-family: Georgia, serif; background: #F7F4EF; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+            .box { background: white; max-width: 480px; margin: 40px auto; padding: 56px 48px; text-align: center; }
+            h2 { color: #2B9BAA; font-weight: 300; font-size: 32px; margin-bottom: 16px; }
+            p { color: #4A4540; font-size: 16px; line-height: 1.7; }
+            strong { color: #1C1A17; }
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <h2>✓ Report delivered</h2>
+            <p>The Founder Benchmark Assessment has been sent to <strong>${decodedEmail}</strong>.</p>
+          </div>
         </body>
       </html>
     `);
   } catch (err) {
     console.error("Delivery error:", err);
-    res.status(500).send("Delivery failed. Please try again or forward the report manually.");
+    res.status(500).send("Delivery failed. Please try again.");
   }
 }
 
@@ -52,8 +76,8 @@ function buildReportEmail(name, reportContent) {
         h2 { font-family: Georgia, serif; font-weight: 400; color: #2B9BAA; font-size: 20px; margin-top: 40px; margin-bottom: 12px; border-bottom: 1px solid #E0D8CC; padding-bottom: 8px; }
         p { margin-bottom: 18px; }
         .cta-box { background: #1C1A17; padding: 40px 48px; text-align: center; margin-top: 48px; }
-        .cta-box p { color: #cccccc; font-size: 14px; margin-bottom: 20px; }
-        .cta-btn { background: #2B9BAA; color: white; padding: 16px 36px; text-decoration: none; font-family: sans-serif; font-size: 14px; border-radius: 2px; }
+        .cta-box p { color: #cccccc; font-size: 14px; margin-bottom: 20px; font-family: sans-serif; }
+        .cta-btn { background: #2B9BAA; color: white; padding: 16px 36px; text-decoration: none; font-family: sans-serif; font-size: 14px; }
         .footer { padding: 24px 48px; text-align: center; color: #999; font-family: sans-serif; font-size: 12px; }
       </style>
     </head>
@@ -73,7 +97,7 @@ function buildReportEmail(name, reportContent) {
           <a href="https://womenwhoknow.ca/reset" class="cta-btn">Join the Waitlist</a>
         </div>
         <div class="footer">
-          <p>Women Who Know · Orillia, Ontario · womenwhoknow.ca</p>
+          <p>Women Who Know &middot; Orillia, Ontario &middot; womenwhoknow.ca</p>
           <p>30-day money-back guarantee. Questions? Reply to this email.</p>
         </div>
       </div>
