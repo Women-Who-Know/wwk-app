@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     // 4. Store report in Blob storage keyed by approval token
     const approvalToken = crypto.randomBytes(32).toString("hex");
     const { url: blobUrl } = await put(`reports/${approvalToken}.txt`, reportContent, {
-      access: "public",
+      access: "private",
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 

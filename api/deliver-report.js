@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { download } from "@vercel/blob";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -12,19 +13,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch report from Blob storage using the direct URL
-    const blobRes = await fetch(decodeURIComponent(blobUrl));
+    // Fetch private blob using SDK
+    const { text } = await download(decodeURIComponent(blobUrl), {
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+    const reportContent = await text();
 
-    if (!blobRes.ok) {
-      return res.status(404).send(`
-        <html><body style="font-family:sans-serif;text-align:center;padding:80px;">
-          <h2 style="color:#c0392b;">Report not found</h2>
-          <p>This report may have already been delivered, or the link has expired.</p>
-        </body></html>
-      `);
-    }
-
-    const reportContent = await blobRes.text();
     const decodedEmail = decodeURIComponent(email);
     const decodedName = decodeURIComponent(name);
 
