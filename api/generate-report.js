@@ -28,15 +28,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // 2. Generate the report via Claude (server-side, key never exposed)
+    // 2. Generate the report via Claude
     const reportContent = await generateReport(answers, name, industry, businessType, yearsInBusiness);
 
-    // 3. Capture the payment now that we have a real report (skip for beta)
+    // 3. Capture payment now that we have a real report (skip for beta)
     if (!isBeta) {
-      const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
-      if (intent.status === "requires_capture") {
-        await stripe.paymentIntents.capture(paymentIntentId);
-      }
+      await stripe.paymentIntents.capture(paymentIntentId);
     }
 
     // 4. Store report in Blob storage keyed by approval token
@@ -57,11 +54,13 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error("Report generation error:", err);
 
-    // If Claude failed, cancel the payment intent so customer isn't charged
-    try {
-      await stripe.paymentIntents.cancel(paymentIntentId);
-    } catch (cancelErr) {
-      console.error("Failed to cancel payment intent:", cancelErr);
+    // Only cancel payment intent for real payments (not beta)
+    if (paymentIntentId !== "beta-free") {
+      try {
+        await stripe.paymentIntents.cancel(paymentIntentId);
+      } catch (cancelErr) {
+        console.error("Failed to cancel payment intent:", cancelErr);
+      }
     }
 
     res.status(500).json({ error: "Report generation failed. Your card has not been charged." });
@@ -119,7 +118,7 @@ async function generateReport(answers, name, industry, businessType, yearsInBusi
     .join("\n");
 
   const message = await anthropic.messages.create({
-    model: "claude-opus-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 4000,
     system: `You are writing a Founder Benchmark Assessment report for Women Who Know, a coaching platform founded by Anitta Hamming.
 
@@ -161,7 +160,7 @@ ${answersText}`,
 async function sendAdminNotification(customerEmail, customerName, reportContent, approvalToken, blobUrl, paymentIntentId) {
   const deliverUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/deliver-report?token=${approvalToken}&blobUrl=${encodeURIComponent(blobUrl)}&email=${encodeURIComponent(customerEmail)}&name=${encodeURIComponent(customerName)}`;
 
-  await resend.emails.send({
+  const { error: sendError } = await resend.emails.send({
     from: "WWK System <hello@womenwhoknow.ca>",
     to: "banittaq@gmail.com",
     subject: `New Assessment Report Ready — ${customerName}`,
@@ -183,4 +182,8 @@ async function sendAdminNotification(customerEmail, customerName, reportContent,
       <p style="color: #999; font-size: 12px;">Clicking approve will email the report to ${customerEmail} immediately.</p>
     `,
   });
+
+  if (sendError) {
+    throw new Error(`Admin notification failed: ${sendError.message}`);
+  }
 }

@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { download } from "@vercel/blob";
+import { get, del } from "@vercel/blob";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -12,22 +12,44 @@ export default async function handler(req, res) {
     return res.status(400).send("Invalid delivery link.");
   }
 
+  const decodedBlobUrl = decodeURIComponent(blobUrl);
+  const decodedEmail = decodeURIComponent(email);
+  const decodedName = decodeURIComponent(name);
+
   try {
-    // Fetch private blob using SDK
-    const { text } = await download(decodeURIComponent(blobUrl), {
+    // Fetch private blob using correct SDK function
+    const blobResult = await get(decodedBlobUrl, {
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
-    const reportContent = await text();
 
-    const decodedEmail = decodeURIComponent(email);
-    const decodedName = decodeURIComponent(name);
+    if (!blobResult) {
+      return res.status(404).send(`
+        <html><body style="font-family:sans-serif;text-align:center;padding:80px;">
+          <h2 style="color:#c0392b;">Report not found</h2>
+          <p>This report may have already been delivered, or the link has expired.</p>
+        </body></html>
+      `);
+    }
+
+    // get() returns a blob Response — read the text
+    const reportContent = await blobResult.text();
 
     // Send report to customer
-    await resend.emails.send({
+    const { error: sendError } = await resend.emails.send({
       from: "Anitta Hamming <hello@womenwhoknow.ca>",
       to: decodedEmail,
       subject: "Your WWK Founder Benchmark Assessment Report",
       html: buildReportEmail(decodedName, reportContent),
+    });
+
+    if (sendError) {
+      console.error("Resend delivery error:", sendError);
+      return res.status(500).send("Email delivery failed. Please try again.");
+    }
+
+    // Delete blob after successful delivery to prevent double-send
+    await del(decodedBlobUrl, {
+      token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
     res.status(200).send(`
