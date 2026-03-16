@@ -79,6 +79,28 @@ export default async function handler(req, res) {
 }
 
 function buildReportEmail(name, reportContent) {
+  // Convert markdown to HTML
+  const htmlContent = reportContent
+    // Section headers ## 1. TITLE
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    // Sub headers ### TITLE
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    // Bold **text**
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Horizontal rules ---
+    .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid #E0D8CC;margin:32px 0;" />')
+    // Paragraphs — double newlines
+    .replace(/\n\n/g, '</p><p>')
+    // Single newlines
+    .replace(/\n/g, '<br/>')
+    // Wrap in paragraph tags
+    .replace(/^/, '<p>')
+    .replace(/$/, '</p>')
+    // Clean up p tags around block elements
+    .replace(/<p>(<h[23]>)/g, '$1')
+    .replace(/(<\/h[23]>)<\/p>/g, '$1')
+    .replace(/<p>(<hr[^>]*\/>)<\/p>/g, '$1');
+
   return `
     <!DOCTYPE html>
     <html>
@@ -107,7 +129,7 @@ function buildReportEmail(name, reportContent) {
           <h1>Your Founder Benchmark Assessment</h1>
           <p style="color: #7a7a7a; font-size: 14px; font-family: sans-serif;">Prepared for ${name}</p>
           <hr style="border: none; border-top: 1px solid #E0D8CC; margin: 32px 0;" />
-          ${reportContent.replace(/\n\n/g, "</p><p>").replace(/\n/g, "<br/>").replace(/^/, "<p>").replace(/$/, "</p>")}
+          ${htmlContent}
         </div>
         <div class="cta-box">
           <p>The Reset Point — a 90-minute diagnostic session for founders who are ready to act on what this report uncovered.</p>

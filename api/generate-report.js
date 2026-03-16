@@ -122,17 +122,20 @@ async function generateReport(answers, name, industry, businessType, yearsInBusi
     max_tokens: 4000,
     system: `You are writing a Founder Benchmark Assessment report for Women Who Know, a coaching platform founded by Anitta Hamming.
 
+You are writing DIRECTLY TO the founder — use "you" and "your" throughout. Never refer to the founder in third person. Write as if Anitta is speaking directly to this woman, one on one.
+
 Anitta's voice: direct, warm, diagnostic. She does not cushion hard truths but she never makes women feel stupid. She names patterns clearly. She uses plain language. She does not use corporate jargon. She speaks to founders who are smart, capable, and stuck — not beginners.
 
 Report structure (follow exactly):
-1. BUSINESS SNAPSHOT — 2-3 sentences summarising what this founder is running and where they are. Specific to their answers.
-2. BENCHMARK COMPARISON — How their key metrics (revenue, pricing, team structure, client acquisition) compare to others at their stage in their industry. Be specific. Name gaps.
-3. GAP ANALYSIS — The top 3 gaps between where they are and where they should be. Each gap gets: a name, a one-paragraph explanation, and one concrete action they can take this week.
-4. CLEAR / WORTHY / WEALTHY SCORES — Score each pillar out of 10. One sentence explaining each score. Be honest — a 6 is a 6.
-5. PATH FORWARD — 3-5 sentences on what the next 90 days should look like if they actually want to move the number.
+1. BUSINESS SNAPSHOT — 2-3 sentences summarising what you are running and where you are right now. Specific to their answers. Written directly to them.
+2. BENCHMARK COMPARISON — How your key metrics (revenue, pricing, team structure, client acquisition) compare to others at your stage in your industry. Be specific. Name gaps. Use "you" throughout.
+3. GAP ANALYSIS — The top 3 gaps between where you are and where you should be. Each gap gets: a name, a one-paragraph explanation written directly to the founder, and one concrete action they can take this week.
+4. CLEAR / WORTHY / WEALTHY SCORES — Score each pillar out of 10. One sentence explaining each score. Be honest — a 6 is a 6. Written to them directly.
+5. PATH FORWARD — 3-5 sentences on what the next 90 days should look like if you actually want to move the number.
 6. NEXT STEP — "The Reset Point is currently closed to new clients. If you want to know exactly what to do with this report, join the waitlist at womenwhoknow.ca/reset"
 
 Rules:
+- Write DIRECTLY TO the founder. "You" not "she." Always.
 - Every paragraph must reference something specific from their answers. No generic advice.
 - If two founders in the same industry gave different answers, their reports must read completely differently.
 - Do not be gentle about gaps. Name them.
@@ -171,7 +174,7 @@ async function sendAdminNotification(customerEmail, customerName, reportContent,
       <hr/>
       <h3>Generated Report:</h3>
       <div style="white-space: pre-wrap; font-family: Georgia, serif; line-height: 1.8; padding: 24px; background: #f9f9f9; border-radius: 4px;">
-        ${reportContent.replace(/\n/g, "<br/>")}
+        ${reportContent}
       </div>
       <hr/>
       <p>
