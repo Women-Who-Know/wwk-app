@@ -1,4 +1,11 @@
 {
+  "functions": {
+    "api/generate-report.js": { "maxDuration": 60 },
+    "api/edit-report.js": { "maxDuration": 30 },
+    "api/send-report.js": { "maxDuration": 30 },
+    "api/print-report.js": { "maxDuration": 30 },
+    "api/create-payment-intent.js": { "maxDuration": 10 }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
