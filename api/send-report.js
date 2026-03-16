@@ -1,5 +1,6 @@
 import { Resend } from "resend";
-import { del } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
+import crypto from "crypto";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -13,11 +14,20 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Store a print copy keyed by a separate token (persists for client to download PDF)
+    const printToken = crypto.randomBytes(32).toString("hex");
+    const { url: printBlobUrl } = await put(`print/${printToken}.txt`, report, {
+      access: "private",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+
+    const printUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/print-report?token=${printToken}&name=${encodeURIComponent(name)}&blobUrl=${encodeURIComponent(printBlobUrl)}`;
+
     const { error: sendError } = await resend.emails.send({
       from: "Anitta Hamming <hello@womenwhoknow.ca>",
       to: email,
       subject: "Your WWK Founder Benchmark Assessment Report",
-      html: buildReportEmail(name, report),
+      html: buildReportEmail(name, report, printUrl),
     });
 
     if (sendError) {
@@ -25,7 +35,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: sendError.message });
     }
 
-    // Delete blob after successful send — prevents re-sending
+    // Delete the original edit blob — print copy stays for PDF download
     await del(blobUrl, {
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
@@ -37,7 +47,7 @@ export default async function handler(req, res) {
   }
 }
 
-function buildReportEmail(name, reportContent) {
+function buildReportEmail(name, reportContent, printUrl) {
   const htmlContent = reportContent
     .replace(/^## (.+)$/gm, '<h2>$1</h2>')
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
@@ -80,6 +90,10 @@ function buildReportEmail(name, reportContent) {
           <p style="color: #7a7a7a; font-size: 14px; font-family: sans-serif;">Prepared for ${name}</p>
           <hr style="border: none; border-top: 1px solid #E0D8CC; margin: 32px 0;" />
           ${htmlContent}
+          <div style="margin-top: 40px; padding-top: 32px; border-top: 1px solid #E0D8CC; text-align: center;">
+            <p style="font-size: 13px; color: #8A837A; font-family: sans-serif; margin-bottom: 16px;">Save a copy of your report</p>
+            <a href="${printUrl}" style="display: inline-block; background: #1C1A17; color: white; padding: 14px 36px; text-decoration: none; font-family: sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;">Download as PDF →</a>
+          </div>
         </div>
         <div class="cta-box">
           <p>The Reset Point — a 90-minute diagnostic session for founders who are ready to act on what this report uncovered.</p>
