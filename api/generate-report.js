@@ -161,28 +161,33 @@ ${answersText}`,
 }
 
 async function sendAdminNotification(customerEmail, customerName, reportContent, approvalToken, blobUrl, paymentIntentId) {
-  const deliverUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/deliver-report?token=${approvalToken}&blobUrl=${encodeURIComponent(blobUrl)}&email=${encodeURIComponent(customerEmail)}&name=${encodeURIComponent(customerName)}`;
+  const editUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/edit-report?token=${approvalToken}&blobUrl=${encodeURIComponent(blobUrl)}&email=${encodeURIComponent(customerEmail)}&name=${encodeURIComponent(customerName)}`;
 
   const { error: sendError } = await resend.emails.send({
     from: "WWK System <hello@womenwhoknow.ca>",
     to: "banittaq@gmail.com",
     subject: `New Assessment Report Ready — ${customerName}`,
     html: `
-      <h2>New report ready for review</h2>
-      <p><strong>Customer:</strong> ${customerName} (${customerEmail})</p>
-      <p><strong>Payment:</strong> ${paymentIntentId}</p>
-      <hr/>
-      <h3>Generated Report:</h3>
-      <div style="white-space: pre-wrap; font-family: Georgia, serif; line-height: 1.8; padding: 24px; background: #f9f9f9; border-radius: 4px;">
-        ${reportContent}
+      <div style="font-family: Georgia, serif; max-width: 680px; margin: 0 auto; padding: 40px 24px;">
+        <p style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #B8956A; font-family: sans-serif;">Women Who Know</p>
+        <h2 style="font-weight: 300; font-size: 28px; color: #1C1A17; margin: 16px 0;">New report ready for review</h2>
+        <p style="font-family: sans-serif; font-size: 14px; color: #4A4540;">
+          <strong>For:</strong> ${customerName} &nbsp;·&nbsp; <strong>Deliver to:</strong> ${customerEmail}<br/>
+          <strong>Payment:</strong> ${paymentIntentId}
+        </p>
+        <hr style="border: none; border-top: 1px solid #E0D8CC; margin: 24px 0;" />
+        <h3 style="font-weight: 400; font-size: 16px; color: #1C1A17; margin-bottom: 16px;">Generated Report:</h3>
+        <div style="white-space: pre-wrap; font-family: Georgia, serif; line-height: 1.8; padding: 24px; background: #f9f9f9; font-size: 15px; color: #1C1A17;">
+          ${reportContent}
+        </div>
+        <hr style="border: none; border-top: 1px solid #E0D8CC; margin: 24px 0;" />
+        <p>
+          <a href="${editUrl}" style="display: inline-block; background: #2B9BAA; color: white; padding: 18px 40px; text-decoration: none; font-family: sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;">
+            Edit &amp; Send to ${customerName.split(' ')[0]} →
+          </a>
+        </p>
+        <p style="color: #999; font-size: 12px; font-family: sans-serif; margin-top: 12px;">Opens an edit page where you can review, revise, and send the report directly to ${customerEmail}.</p>
       </div>
-      <hr/>
-      <p>
-        <a href="${deliverUrl}" style="background: #2B9BAA; color: white; padding: 16px 32px; text-decoration: none; border-radius: 4px; font-family: sans-serif;">
-          ✓ Approve & Send to Customer
-        </a>
-      </p>
-      <p style="color: #999; font-size: 12px;">Clicking approve will email the report to ${customerEmail} immediately.</p>
     `,
   });
 
