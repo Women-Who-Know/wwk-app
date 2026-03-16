@@ -25,6 +25,16 @@ export default async function handler(req, res) {
 
     const reportContent = await new Response(blobResult.stream).text();
 
+    // Safe values for embedding in HTML/JS
+    const safeEmail = JSON.stringify(decodedEmail);
+    const safeName = JSON.stringify(decodedName);
+    const safeBlobUrl = JSON.stringify(decodedBlobUrl);
+    const safeToken = JSON.stringify(token);
+    const safeReportContent = reportContent
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
     res.status(200).send(`
       <!DOCTYPE html>
       <html>
@@ -86,7 +96,7 @@ export default async function handler(req, res) {
           </div>
 
           <label>Report Content — Edit below, then click Send</label>
-          <textarea id="reportContent">${reportContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+          <textarea id="reportContent">${safeReportContent}</textarea>
 
           <div class="actions">
             <button class="btn-send" id="sendBtn" onclick="sendReport()">Send to ${decodedName.split(' ')[0]} →</button>
@@ -111,10 +121,10 @@ export default async function handler(req, res) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   report: content,
-                  email: '${decodedEmail}',
-                  name: '${decodedName}',
-                  blobUrl: '${decodedBlobUrl}',
-                  token: '${token}'
+                  email: ${safeEmail},
+                  name: ${safeName},
+                  blobUrl: ${safeBlobUrl},
+                  token: ${safeToken}
                 })
               });
 
@@ -122,7 +132,7 @@ export default async function handler(req, res) {
 
               if (res.ok) {
                 status.className = 'status success';
-                status.textContent = '✓ Report sent to ${decodedEmail}';
+                status.textContent = '✓ Report sent to ' + ${safeEmail};
                 status.style.display = 'block';
                 btn.textContent = '✓ Sent';
               } else {
@@ -133,7 +143,7 @@ export default async function handler(req, res) {
               status.textContent = 'Error: ' + err.message;
               status.style.display = 'block';
               btn.disabled = false;
-              btn.textContent = 'Send to ${decodedName.split(' ')[0]} →';
+              btn.textContent = 'Send →';
             }
           }
         </script>

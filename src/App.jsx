@@ -850,9 +850,9 @@ export default function App() {
           answers,
           name,
           email,
-          industry: answers["q2"] || "",
-          businessType: answers["q3"] || "",
-          yearsInBusiness: answers["q1"] || "",
+          industry: answers["q1_industry"] ? `${answers["q1_industry"].sector || ""} — ${answers["q1_industry"].niche || ""}` : "",
+          businessType: answers["q3_employees"] ? answers["q3_employees"].count || "" : "",
+          yearsInBusiness: answers["q2_years"] || "",
           paymentIntentId,
         }),
       });
