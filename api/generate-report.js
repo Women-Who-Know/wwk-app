@@ -88,7 +88,7 @@ async function generateReport(answers, name, industry, businessType, yearsInBusi
     q8_pricing:     "How they priced their highest offer and discounting behaviour (their exact words)",
     q9_priceincrease: "Last price increase (their exact words)",
     q10_pressure:   "Response when prospect says price is too high",
-    q11_revenue:    "Monthly revenue",
+    q11_revenue:    "Monthly revenue (range and consistency — treat the midpoint as the working figure)",
     q12_chargemore: "Would charge more if... (their exact words)",
     q13_source:     "How clients find them",
     q14_calls:      "Discovery calls per month",
@@ -158,6 +158,7 @@ Rules:
 - Every paragraph must reference something specific from their answers. No generic advice.
 - Do not be gentle about gaps. Name them.
 - Do not use bullet points in the body — write in paragraphs.
+- Monthly revenue is provided as a range (e.g. "$7-15K / month"). Treat the midpoint as the working figure. Never say revenue figures are missing or unknown — they are always provided in range form.
 - Do not add a document title, header, or "Prepared for" line — the email template handles that.
 - Do not use the word "journey."`,
     messages: [{
