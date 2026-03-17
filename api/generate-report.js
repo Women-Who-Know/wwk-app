@@ -154,6 +154,7 @@ Rules:
 - Every paragraph must reference something specific from their answers. No generic advice.
 - Do not be gentle about gaps. Name them.
 - Do not use bullet points in the body — write in paragraphs.
+- Do not add a document title, header, or "Prepared for" line — the email template handles that.
 - Do not use the word "journey."`,
     messages: [{
       role: "user",

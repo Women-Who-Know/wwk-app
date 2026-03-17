@@ -80,6 +80,12 @@ export default async function handler(req, res) {
 
 function markdownToHtml(text) {
   return text
+    // Strip document title lines — email template provides these
+    .replace(/^#\s+(Founder Benchmark Assessment.*|Your Report.*)$/gm, "")
+    .replace(/^###\s+(Prepared for.*)$/gm, "")
+    // Single # headers
+    .replace(/^# (.+)$/gm, "</p><h2>$1</h2><p>")
+    // Section headers
     .replace(/^## (.+)$/gm, "</p><h2>$1</h2><p>")
     .replace(/^### (.+)$/gm, "</p><h3>$1</h3><p>")
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
