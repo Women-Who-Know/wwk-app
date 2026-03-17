@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     // Notify Anitta
     await resend.emails.send({
       from: "WWK System <hello@womenwhoknow.ca>",
-      to: "banittaq@gmail.com",
+      to: "hello@womenwhoknow.ca",
       subject: `Reset Point Waitlist — ${name || email}`,
       html: `
         <div style="font-family:sans-serif;max-width:480px;padding:40px 24px;">
