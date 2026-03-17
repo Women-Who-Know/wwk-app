@@ -795,7 +795,9 @@ function parseReport(text) {
 // ============================================================
 
 export default function App() {
-  const [screen, setScreen] = useState("landing");
+  const [screen, setScreen] = useState(
+    window.location.pathname === "/waitlist" ? "waitlist" : "landing"
+  );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [currentQ, setCurrentQ] = useState(0);
@@ -881,6 +883,7 @@ export default function App() {
     <div style={S.app}>
       <style>{CSS}</style>
       {screen === "landing" && <Landing onStart={() => setScreen("details")} />}
+      {screen === "waitlist" && <Waitlist />}
       {screen === "details" && (
         <Details
           name={name} setName={setName}
@@ -1481,6 +1484,85 @@ function SourceInput({ value, onChange, options, dataOptions }) {
   );
 }
 
+function Waitlist() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [errorMsg, setErrorMsg] = useState("");
+
+  async function handleSubmit() {
+    if (!email.trim()) { setErrorMsg("Email is required."); return; }
+    setStatus("loading");
+    setErrorMsg("");
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+      setStatus("success");
+    } catch (e) {
+      setErrorMsg(e.message);
+      setStatus("error");
+    }
+  }
+
+  if (status === "success") {
+    return (
+      <div>
+        <nav style={S.topNav}>
+          <a href="https://women-who-know.github.io/wwk-landing/" style={S.navLogo}>Women Who Know</a>
+        </nav>
+        <div style={S.center}>
+          <div style={{ ...S.container, maxWidth: 520 }} className="fadein">
+            <div style={S.wwk}>Women Who Know</div>
+            <h2 style={S.h2}>You're on the list.</h2>
+            <p style={S.lead}>When a spot opens in The Reset Point, you'll hear from me directly.</p>
+            <p style={{ ...S.fine, marginTop: 32 }}>— Anitta</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <nav style={S.topNav}>
+        <a href="https://women-who-know.github.io/wwk-landing/" style={S.navLogo}>Women Who Know</a>
+      </nav>
+      <div style={S.center}>
+        <div style={{ ...S.container, maxWidth: 520 }} className="fadein">
+          <div style={S.wwk}>The Reset Point</div>
+          <h2 style={S.h2}>Join the waitlist.</h2>
+          <p style={{ ...S.lead, marginBottom: 40 }}>
+            A 90-minute diagnostic session — one founder, one problem, one clear path forward.
+            Spots are limited. Leave your details and you'll hear from me when one opens.
+          </p>
+          <div style={S.field}>
+            <label style={S.label}>Your name</label>
+            <input style={S.input} value={name} onChange={e => setName(e.target.value)} placeholder="First name is fine" />
+          </div>
+          <div style={S.field}>
+            <label style={S.label}>Email address</label>
+            <input style={S.input} type="email" value={email} onChange={e => { setEmail(e.target.value); setErrorMsg(""); }} placeholder="Where I'll reach you" />
+          </div>
+          {errorMsg && <p style={S.err}>{errorMsg}</p>}
+          <button
+            style={{ ...S.btn, opacity: status === "loading" ? 0.6 : 1 }}
+            onClick={handleSubmit}
+            disabled={status === "loading"}
+          >
+            {status === "loading" ? "Submitting…" : "Join the Waitlist →"}
+          </button>
+          <p style={S.fine}>No spam. Just a direct message when a spot opens.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Generating({ name }) {
   const [phase, setPhase] = useState(0);
   const [dots, setDots] = useState(".");
@@ -1599,7 +1681,7 @@ function Report({ name, sections, scores, rawReport }) {
         <p style={S.ctaP}>
           Spots are currently closed. Join the waitlist and you'll be contacted when the next batch opens — first come, first served.
         </p>
-        <a href="https://womenwhoknow.ca/reset-point-waitlist" style={S.waitlistBtn} className="btn">
+        <a href="https://wwk-app.vercel.app/waitlist" style={S.waitlistBtn} className="btn">
           Join the Reset Point Waitlist →
         </a>
       </div>

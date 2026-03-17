@@ -126,7 +126,7 @@ export default async function handler(req, res) {
 
     <div class="cta-box">
       <p>The Reset Point — a 90-minute diagnostic session for founders who are ready to act on what this report uncovered.</p>
-      <a href="https://womenwhoknow.ca/reset" class="cta-btn">Join the Waitlist</a>
+      <a href="https://wwk-app.vercel.app/waitlist" class="cta-btn">Join the Waitlist</a>
     </div>
 
     <div class="doc-footer">

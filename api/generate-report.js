@@ -147,7 +147,7 @@ Score each pillar out of 10. One sentence explaining each score. Be honest — a
 3-5 sentences on what the next 90 days should look like if you actually want to move the number.
 
 ## 6. NEXT STEP
-"The Reset Point is currently closed to new clients. If you want to know exactly what to do with this report, join the waitlist at womenwhoknow.ca/reset"
+"The Reset Point is currently closed to new clients. If you want to know exactly what to do with this report, join the waitlist at wwk-app.vercel.app/waitlist"
 
 Rules:
 - Write DIRECTLY TO the founder. "You" not "she." Always.
