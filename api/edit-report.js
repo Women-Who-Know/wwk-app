@@ -132,7 +132,8 @@ export default async function handler(req, res) {
           })
         });
 
-        const data = await res.json();
+        let data = {};
+        try { data = await res.json(); } catch(e) { data = { error: 'Server error — please try again.' }; }
 
         if (res.ok) {
           status.className = 'status success';
