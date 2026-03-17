@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { Resend } from "resend";
 import crypto from "crypto";
 import { put } from "@vercel/blob";
+import { addContact } from "./add-contact.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -51,6 +52,9 @@ export default async function handler(req, res) {
       paymentIntentId,
       isBeta,
     });
+
+    // 5. Add to Resend audience (non-fatal if it fails)
+    await addContact({ email, firstName: name });
 
     res.status(200).json({ success: true });
 

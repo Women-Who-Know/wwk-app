@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { addContact } from "./add-contact.js";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -49,6 +50,9 @@ export default async function handler(req, res) {
         </div>
       `,
     });
+
+    // Add to Resend audience (non-fatal if it fails)
+    await addContact({ email, firstName: name });
 
     res.status(200).json({ success: true });
   } catch (err) {
