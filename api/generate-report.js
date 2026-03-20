@@ -42,6 +42,18 @@ export default async function handler(req, res) {
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
+    // 3a. Store original AI-generated report — audit trail and AI training foundation
+    await put(`originals/${approvalToken}.txt`, reportContent, {
+      access: "private",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+
+    // 3b. Store answers — edit panel display and AI training foundation
+    await put(`answers/${approvalToken}.json`, JSON.stringify({ name, email, industry, businessType, yearsInBusiness, answers }, null, 2), {
+      access: "private",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+
     // 4. Email admin with report preview and Edit & Send link
     await sendAdminNotification({
       customerEmail: email,

@@ -33,6 +33,68 @@ export default async function handler(req, res) {
 
     const reportContent = await new Response(blobResult.stream).text();
 
+    // Fetch answers if available (stored since March 2026)
+    let answersData = null;
+    try {
+      const answersBlobUrl = decodedBlobUrl.replace("/reports/", "/answers/").replace(".txt", ".json");
+      const answersBlobResult = await get(answersBlobUrl, {
+        access: "private",
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      });
+      if (answersBlobResult) {
+        const answersText = await new Response(answersBlobResult.stream).text();
+        answersData = JSON.parse(answersText);
+      }
+    } catch (e) {
+      // Non-fatal — older submissions won't have answers stored
+    }
+
+    // Build answers panel HTML
+    const qLabels = {
+      q1_industry: "Industry & Niche", q2_years: "Years in Business",
+      q3_employees: "Team Structure", q4_idealclient: "Ideal Client",
+      q5_whatyoudo: "What She Does", q6_decision: "Last Decision Delayed",
+      q7_offers: "Number of Offers", q8_pricing: "Pricing & Discounting",
+      q9_priceincrease: "Last Price Increase", q10_pressure: "Response to Price Pushback",
+      q11_revenue: "Monthly Revenue", q12_chargemore: "Would Charge More If...",
+      q13_source: "How Clients Find Her", q14_calls: "Discovery Calls/Month",
+      q15_conversion: "Conversion Rate", q16_bottleneck: "Biggest Bottleneck",
+      q17_know: "Knows Needs to Change", q18_dream: "Dream Scenario",
+    };
+    function fmtAns(id, val) {
+      if (!val) return "—";
+      if (typeof val === "string") return val;
+      if (typeof val === "object") {
+        if (val.sector) return val.sector + (val.niche ? " — " + val.niche : "");
+        if (val.range) return val.range + "/month" + (val.consistency ? " · " + val.consistency : "");
+        if (val.source) return val.source + (val.data ? " · " + val.data : "");
+        if (val.primary !== undefined) return val.count + " offers — primary: " + val.primary;
+        if (val.count !== undefined) return val.count + (val.structure ? " (" + val.structure + ")" : "");
+        return JSON.stringify(val);
+      }
+      return String(val);
+    }
+    let answersPanel = "";
+    if (answersData && answersData.answers) {
+      let rows = "";
+      for (const [id, val] of Object.entries(answersData.answers)) {
+        const label = qLabels[id] || id;
+        const value = fmtAns(id, val);
+        const highlight = id === "q11_revenue" ? ' style="background:#fffbe6;"' : "";
+        const bold = id === "q11_revenue" ? "font-weight:600;" : "";
+        rows += "<tr" + highlight + ">"
+          + "<td style=\"padding:8px 12px;font-family:sans-serif;font-size:12px;color:#8A837A;white-space:nowrap;vertical-align:top;\">" + label + "</td>"
+          + "<td style=\"padding:8px 12px;font-family:Georgia,serif;font-size:13px;color:#1C1A17;line-height:1.5;" + bold + "\">" + value + "</td>"
+          + "</tr>";
+      }
+      answersPanel = "<details style=\"margin-bottom:24px;border:1px solid #E0D8CC;background:#fff;\">"
+        + "<summary style=\"padding:14px 20px;font-family:sans-serif;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#2B9BAA;font-weight:600;cursor:pointer;list-style:none;user-select:none;\">"
+        + "&#9658; Client Answers &mdash; " + decodedName
+        + "</summary>"
+        + "<table style=\"width:100%;border-collapse:collapse;border-top:1px solid #E0D8CC;\">" + rows + "</table>"
+        + "</details>";
+    }
+
     // All values safely JSON-encoded for embedding in JavaScript
     const jsEmail = JSON.stringify(decodedEmail);
     const jsName = JSON.stringify(decodedName);
@@ -92,6 +154,7 @@ export default async function handler(req, res) {
       <p class="meta">For: <strong>${decodedName}</strong> &nbsp;·&nbsp; Deliver to: <strong>${decodedEmail}</strong></p>
     </div>
     <label>Report — review and edit below, then click Send</label>
+    \${answersPanel}
     <textarea id="reportContent">${safeReport}</textarea>
     <div class="actions">
       <button class="btn" id="sendBtn" onclick="sendReport()">Send to ${firstName} →</button>

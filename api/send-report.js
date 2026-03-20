@@ -60,7 +60,21 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: `Email failed: ${sendError.message}` });
     }
 
-    // 4. Delete the edit blob — report is sent, prevent re-sending from edit page
+    // 4. Store final delivered report — audit trail and AI training foundation
+    const { token } = req.body;
+    if (token) {
+      try {
+        await put(`delivered/${token}.txt`, report, {
+          access: "private",
+          token: process.env.BLOB_READ_WRITE_TOKEN,
+        });
+      } catch (storeErr) {
+        // Non-fatal — log but don't fail the request
+        console.error("Failed to store delivered report:", storeErr.message);
+      }
+    }
+
+    // 5. Delete the edit blob — report is sent, prevent re-sending from edit page
     try {
       await del(blobUrl, { token: process.env.BLOB_READ_WRITE_TOKEN });
     } catch (delErr) {
