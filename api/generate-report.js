@@ -124,10 +124,7 @@ async function generateReport(answers, name, industry, businessType, yearsInBusi
     .map(([id, answer]) => `${questionLabels[id] || id}: ${formatAnswer(id, answer)}`)
     .join("\n");
 
-  const message = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4000,
-    system: `You are writing a Founder Benchmark Assessment report for Women Who Know, a coaching platform founded by Anitta Hamming.
+  const reportSystem = `You are writing a Founder Benchmark Assessment report for Women Who Know, a coaching platform founded by Anitta Hamming.
 
 You are writing DIRECTLY TO the founder — use "you" and "your" throughout. Never refer to the founder in third person. Write as if Anitta is speaking directly to this woman, one on one.
 
@@ -160,7 +157,12 @@ Rules:
 - Do not use bullet points in the body — write in paragraphs.
 - Monthly revenue is ALWAYS provided as a range (e.g. "$7-15K / month"). Use the midpoint as your working figure and state it directly (e.g. "at roughly $11K/month"). NEVER write phrases like "without a reported revenue figure," "working from structural signals," or any variation suggesting revenue data is absent. It is never absent. If you write any such phrase, you are wrong.
 - Do not add a document title, header, or "Prepared for" line — the email template handles that.
-- Do not use the word "journey."`,
+- Do not use the word "journey."`;
+
+  const message = await anthropic.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 4000,
+    system: reportSystem,
     messages: [{
       role: "user",
       content: `Generate a Founder Benchmark Assessment report for:
@@ -179,7 +181,76 @@ ${answersText}`,
     }],
   });
 
-  return message.content[0].text;
+  const draft = message.content[0].text;
+  if (!draft) return "";
+
+  // ── CALL 2: Audit for fabrication, misrepresentation, assumptions ──────────
+  const auditSystem = `You are an accuracy auditor for Women Who Know assessment reports. Your only job is to check a generated report against the founder's actual answers and benchmarking reference data.
+
+You are looking for exactly five problem types:
+1. FABRICATED STATISTIC — any percentage, number, or statistic not found verbatim in the benchmarking reference data, OR invented in a recommendation (e.g. "raise prices by 25%", "contact 10 leads per week"). Specific numbers in action steps are fabricated unless the founder stated them explicitly in her answers.
+2. MISREPRESENTATION — any statement that distorts, exaggerates, or contradicts what she actually wrote.
+3. ASSUMPTION — any claim stated as fact that she never provided in her answers (things assumed from silence — e.g. she didn't mention X, so report claims she doesn't struggle with X).
+4. MISSING REVENUE — the report does not open Section 2 with her specific monthly revenue range/midpoint. This is always a violation.
+5. INLINE CITATION — any source name, study name, or data reference appearing in the report body (e.g. "CMMOTA 2023", "ICF study", "ISED", "IRS data"). These do not belong in the report.
+
+Return your response in exactly this format:
+If problems found: List each as: [TYPE]: "[the problematic text]" — REASON: [why it's a problem]
+If no problems found: Return only the word PASS
+
+Do not comment on writing quality, tone, or style. Only flag accuracy violations.`;
+
+  const auditUser = `FOUNDER'S ACTUAL ANSWERS:
+${answersText}
+
+CONFIRMED DATA:
+Monthly revenue range: ${answers['q11_revenue']?.range || 'not provided'}
+Revenue consistency: ${answers['q11_revenue']?.consistency || 'not provided'}
+
+REPORT TO AUDIT:
+${draft}
+
+Audit now.`;
+
+  const auditMessage = await anthropic.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 2000,
+    system: auditSystem,
+    messages: [{ role: "user", content: auditUser }],
+  });
+
+  const auditResult = auditMessage.content[0].text.trim();
+
+  if (auditResult === "PASS") {
+    return draft;
+  }
+
+  // ── CALL 3: Rewrite correcting only the violations ─────────────────────────
+  const rewriteUser = `The following accuracy violations were found in this report. Rewrite the complete report correcting only these violations. Voice, structure, and everything else stays the same.
+
+VIOLATIONS TO FIX:
+${auditResult}
+
+FOUNDER'S CONFIRMED DATA:
+Monthly revenue range: ${answers['q11_revenue']?.range || 'not provided'}
+Revenue consistency: ${answers['q11_revenue']?.consistency || 'not provided'}
+
+FOUNDER'S ACTUAL ANSWERS:
+${answersText}
+
+ORIGINAL REPORT:
+${draft}
+
+Rewrite now.`;
+
+  const rewriteMessage = await anthropic.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 4000,
+    system: reportSystem,
+    messages: [{ role: "user", content: rewriteUser }],
+  });
+
+  return rewriteMessage.content[0].text || draft;
 }
 
 // ─── Admin notification ────────────────────────────────────────────────────────
