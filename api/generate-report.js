@@ -139,7 +139,7 @@ Report structure (follow exactly):
 2-3 sentences on what you are running and where you are right now. Specific to their answers. Written directly to them.
 
 ## 2. BENCHMARK COMPARISON
-How your key metrics (revenue, pricing, team structure, client acquisition) compare to others at your stage in your industry. Be specific. Name gaps. Use "you" throughout.
+Her monthly revenue range is stated explicitly in the CONFIRMED DATA block at the top of the user message. Use the midpoint of that range as your working number and state it in dollars (e.g. "at roughly $11K/month"). Open this section with that number. Do not hedge, do not say it's missing, do not say you're working from structural signals. The number is there. Use it.
 
 ## 3. GAP ANALYSIS
 The top 3 gaps between where you are and where you should be. Each gap gets: a bold name, a paragraph explanation written directly to the founder, and one concrete action they can take this week.
@@ -158,7 +158,7 @@ Rules:
 - Every paragraph must reference something specific from their answers. No generic advice.
 - Do not be gentle about gaps. Name them.
 - Do not use bullet points in the body — write in paragraphs.
-- Monthly revenue is provided as a range (e.g. "$7-15K / month"). Treat the midpoint as the working figure. Never say revenue figures are missing or unknown — they are always provided in range form.
+- Monthly revenue is ALWAYS provided as a range (e.g. "$7-15K / month"). Use the midpoint as your working figure and state it directly (e.g. "at roughly $11K/month"). NEVER write phrases like "without a reported revenue figure," "working from structural signals," or any variation suggesting revenue data is absent. It is never absent. If you write any such phrase, you are wrong.
 - Do not add a document title, header, or "Prepared for" line — the email template handles that.
 - Do not use the word "journey."`,
     messages: [{
@@ -169,6 +169,10 @@ Name: ${name}
 Industry: ${industry}
 Business type: ${businessType}
 Years in business: ${yearsInBusiness}
+
+CONFIRMED DATA — USE THESE NUMBERS DIRECTLY IN THE REPORT:
+Monthly revenue range: ${answers['q11_revenue']?.range || 'not provided'}
+Revenue consistency: ${answers['q11_revenue']?.consistency || 'not provided'}
 
 Assessment answers:
 ${answersText}`,
