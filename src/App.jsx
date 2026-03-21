@@ -1436,9 +1436,9 @@ function OffersInput({ value, onChange, options, hint }) {
 }
 
 function RevenueInput({ value, onChange, options, consistencyOptions }) {
-  const consistencyRef = React.useRef(null);
+  const consistencyRef = useRef(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (value.range && !value.consistency && consistencyRef.current) {
       setTimeout(() => {
         consistencyRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
