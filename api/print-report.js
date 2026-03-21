@@ -28,8 +28,8 @@ export default async function handler(req, res) {
     const decodedName = decodeURIComponent(name);
 
     const htmlContent = reportContent
-      .replace(/^#\s+(Founder Benchmark Assessment.*|Your Report.*)$/gm, "")
-      .replace(/^###\s+(Prepared for.*)$/gm, "")
+      .replace(/^#\s+(FOUNDER BENCHMARK ASSESSMENT.*|Founder Benchmark Assessment.*|Your Report.*)$/gim, "")
+      .replace(/^###?\s+(Women Who Know.*|Prepared for.*)$/gim, "")
       .replace(/^# (.+)$/gm, "</p><h2>$1</h2><p>")
       .replace(/^## (.+)$/gm, "</p><h2>$1</h2><p>")
       .replace(/^### (.+)$/gm, "</p><h3>$1</h3><p>")
