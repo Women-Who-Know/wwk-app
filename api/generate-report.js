@@ -28,6 +28,8 @@ export default async function handler(req, res) {
     }
 
     // 2. Store answers immediately — this is the whole job of this endpoint
+    console.log("q11_revenue received:", JSON.stringify(answers?.q11_revenue));
+    console.log("total answer keys:", Object.keys(answers || {}).length);
     const submissionToken = crypto.randomBytes(32).toString("hex");
     await put(`answers/${submissionToken}.json`, JSON.stringify({
       name, email, industry, businessType, yearsInBusiness, answers, paymentIntentId, isBeta
