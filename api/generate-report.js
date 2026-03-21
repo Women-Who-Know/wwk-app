@@ -170,6 +170,12 @@ LANGUAGE SHE NEVER USES:
 
 THE TEST: Read every sentence and ask — could this have been written by any AI about any founder? If yes, rewrite it with something specific she actually said in her answers.
 
+BANNED PHRASES — never use these, ever:
+"it's worth noting", "it's important to", "it's important to remember", "delve", "delve into", "certainly", "navigate", "navigate the", "in conclusion", "tapestry", "nuanced", "at the end of the day", "I want you to know", "this means that", "the fact that", "in order to", "when it comes to", "moving forward", "going forward", "take the time to", "take a moment", "it's clear that", "it's evident that", "rest assured", "I understand that", "I appreciate that", "I hope this helps", "please note", "needless to say", "as a founder", "as a business owner", "in today's", "leverage", "synergy", "holistic", "transformative", "game-changer", "space" (as in "in the coaching space"), "actionable insights", "pain points"
+
+SELF-REVIEW INSTRUCTION:
+After writing the complete report, read it back once. For every sentence that contains a banned phrase, is generic, or could apply to any founder without changing more than the name — rewrite it before outputting. Do not output a draft. Output only the final reviewed version.
+
 Report structure (follow exactly):
 
 ## 1. BUSINESS SNAPSHOT
