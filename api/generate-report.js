@@ -550,32 +550,9 @@ Write the full report now. Remember: quote her exact words. Every sentence must 
 
   if (!draft) return "";
 
-  // ── Call 2: Audit for fabrication and hallucination ──
-  const auditSystem = `You are an accuracy auditor for Women Who Know assessment reports. Your only job is to check a generated report against the founder's actual answers and a benchmarking reference dataset.
-
-You are looking for exactly six problem types:
-1. FABRICATED STATISTIC — any percentage, number, or statistic not found verbatim in the benchmarking reference data, OR invented in a recommendation.
-2. MISREPRESENTATION — any statement that distorts, exaggerates, or contradicts what she actually wrote.
-3. ASSUMPTION — any claim stated as fact that she never provided in her answers.
-4. POSITIVE INFERENCE FROM SILENCE — any positive claim based on her NOT mentioning a problem.
-5. MISSING REVENUE — Section 2 does not reference her specific monthly revenue range. Always a violation.
-6. INLINE CITATION — source names, study names, or sample sizes in the report body.
-
-Return your response in exactly this format:
-If problems found: List each as: [TYPE]: "[problematic text]" — REASON: [why]
-If no problems found: Return only the word PASS`;
-
-  const auditResult = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 2000,
-    system: auditSystem,
-    messages: [{ role: "user", content: `FOUNDER'S ACTUAL ANSWERS:\n${processedAnswers}\n\nBENCHMARKING REFERENCE DATA:\n${BENCHMARKS}\n\nREPORT TO AUDIT:\n${draft}\n\nAudit now.` }],
-  }).then(r => r.content[0].text.trim());
-
-  // Return draft with audit result appended as a flag for admin review
-  // (rewrite call removed to stay within 60s timeout — admin can fix violations manually)
-  if (auditResult === "PASS") return draft;
-  return draft + "\n\n---\n**AUDIT FLAGS — REVIEW BEFORE SENDING:**\n" + auditResult;
+  // Audit call removed — causes Vercel timeout with large prompts.
+  // Admin review step in Edit & Send interface serves as the quality check.
+  return draft;
 }
 
 // ─── Admin notification ────────────────────────────────────────────────────────
