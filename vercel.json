@@ -1,6 +1,7 @@
 {
   "functions": {
-    "api/generate-report.js": { "maxDuration": 300 },
+    "api/generate-report.js": { "maxDuration": 30 },
+    "api/run-report.js": { "maxDuration": 300 },
     "api/edit-report.js": { "maxDuration": 60 },
     "api/send-report.js": { "maxDuration": 60 },
     "api/print-report.js": { "maxDuration": 60 },
