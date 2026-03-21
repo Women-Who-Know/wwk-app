@@ -552,9 +552,29 @@ Write the full report now. Remember: quote her exact words. Every sentence must 
 
   if (!draft) return "";
 
-  // Audit call removed — causes Vercel timeout with large prompts.
-  // Admin review step in Edit & Send interface serves as the quality check.
-  return draft;
+  // ── Call 2: Audit for fabrication, misrepresentation, missing revenue ──────
+  const auditSystem = `You are an accuracy auditor for Women Who Know assessment reports. Check the report against the founder's actual answers and benchmarking data.
+
+Five violation types to flag:
+1. FABRICATED STATISTIC — any number not found verbatim in the benchmarking data, OR invented in a recommendation (e.g. "raise prices by 25%")
+2. MISREPRESENTATION — distorts, exaggerates, or contradicts what she actually wrote
+3. ASSUMPTION — stated as fact but she never said it (including positive inferences from silence)
+4. MISSING REVENUE — Section 2 does not open with her specific monthly revenue range
+5. INLINE CITATION — source names or sample sizes in the report body (e.g. "ISED", "ICF 2023", "N=585")
+
+Return format:
+If problems found: [TYPE]: "[text]" — REASON: [why]
+If no problems: Return only the word PASS`;
+
+  const auditResult = await anthropic.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 1500,
+    system: auditSystem,
+    messages: [{ role: "user", content: `FOUNDER'S ANSWERS:\n${processedAnswers}\n\nBENCHMARKS:\n${BENCHMARKS}\n\nREPORT:\n${draft}\n\nAudit now.` }],
+  }).then(r => r.content[0].text.trim());
+
+  if (auditResult === "PASS") return draft;
+  return draft + "\n\n---\n**AUDIT FLAGS — REVIEW BEFORE SENDING:**\n" + auditResult;
 }
 
 // ─── Admin notification ────────────────────────────────────────────────────────
