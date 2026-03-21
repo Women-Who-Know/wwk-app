@@ -154,7 +154,7 @@ Her monthly revenue range is stated explicitly in the CONFIRMED DATA block at th
 The top 3 gaps between where you are and where you should be. Each gap gets: a bold name, a paragraph explanation written directly to the founder, and one concrete action they can take this week.
 
 ## 4. CLEAR / WORTHY / WEALTHY SCORES
-Score each pillar out of 10. One sentence explaining each score. Be honest — a 6 is a 6.
+Score each pillar out of 10. For each score write exactly two sentences: the first names the specific strength that earned the score; the second names the one specific thing holding it back from higher. Do not be vague — "you're doing well here" is not a strength. Name what she is actually doing right, then name what is actually missing. Be honest — a 6 is a 6.
 
 ## 5. PATH FORWARD
 3-5 sentences on what the next 90 days should look like if you actually want to move the number.
