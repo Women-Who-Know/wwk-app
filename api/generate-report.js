@@ -572,17 +572,10 @@ If no problems found: Return only the word PASS`;
     messages: [{ role: "user", content: `FOUNDER'S ACTUAL ANSWERS:\n${processedAnswers}\n\nBENCHMARKING REFERENCE DATA:\n${BENCHMARKS}\n\nREPORT TO AUDIT:\n${draft}\n\nAudit now.` }],
   }).then(r => r.content[0].text.trim());
 
+  // Return draft with audit result appended as a flag for admin review
+  // (rewrite call removed to stay within 60s timeout — admin can fix violations manually)
   if (auditResult === "PASS") return draft;
-
-  // ── Call 3: Rewrite with violations corrected ──
-  const rewritten = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 6000,
-    system,
-    messages: [{ role: "user", content: `The following accuracy violations were found. Rewrite the complete report correcting only these violations. Everything else stays the same.\n\nVIOLATIONS TO FIX:\n${auditResult}\n\nFOUNDER'S ACTUAL ANSWERS:\n${processedAnswers}\n\nORIGINAL DRAFT:\n${draft}\n\nRewrite now.` }],
-  }).then(r => r.content[0].text);
-
-  return rewritten || draft;
+  return draft + "\n\n---\n**AUDIT FLAGS — REVIEW BEFORE SENDING:**\n" + auditResult;
 }
 
 // ─── Admin notification ────────────────────────────────────────────────────────
