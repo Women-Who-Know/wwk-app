@@ -861,19 +861,21 @@ export default function App() {
     if (currentQ > 0) { setCurrentQ((c) => c - 1); setError(""); }
   }
 
-  async function handleGenerate() {
+  async function handleGenerate(finalAnswers) {
+    // finalAnswers is passed explicitly to avoid stale closure on last question
+    const a = finalAnswers || answers;
     setScreen("generating");
     try {
       const response = await fetch("/api/generate-report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          answers,
+          answers: a,
           name,
           email,
-          industry: answers["q1_industry"] ? `${answers["q1_industry"].sector || ""} — ${answers["q1_industry"].niche || ""}` : "",
-          businessType: answers["q3_employees"] ? answers["q3_employees"].count || "" : "",
-          yearsInBusiness: answers["q2_years"] || "",
+          industry: a["q1_industry"] ? `${a["q1_industry"].sector || ""} — ${a["q1_industry"].niche || ""}` : "",
+          businessType: a["q3_employees"] ? a["q3_employees"].count || "" : "",
+          yearsInBusiness: a["q2_years"] || "",
           paymentIntentId,
         }),
       });
@@ -891,10 +893,11 @@ export default function App() {
 
   function handleChoiceSelect(value) {
     setAnswer(q.id, value);
+    const updatedAnswers = { ...answers, [q.id]: value };
     setTimeout(() => {
       setError("");
       if (currentQ < TOTAL - 1) setCurrentQ((c) => c + 1);
-      else handleGenerate();
+      else handleGenerate(updatedAnswers);
     }, 350);
   }
 
@@ -1262,7 +1265,7 @@ function Assessment({ q, currentQ, total, progress, answers, setAnswer, onNext, 
 
         {/* REVENUE */}
         {q.type === "revenue" && (
-          <RevenueInput value={answers[q.id] || {}} onChange={v => { setAnswer(q.id, v); if (v.range && v.consistency) { setTimeout(() => { setError(""); if (currentQ < TOTAL - 1) setCurrentQ(c => c + 1); else handleGenerate(); }, 350); } }} options={q.options} consistencyOptions={q.consistencyOptions} />
+          <RevenueInput value={answers[q.id] || {}} onChange={v => { setAnswer(q.id, v); if (v.range && v.consistency) { const updatedAnswers = { ...answers, [q.id]: v }; setTimeout(() => { setError(""); if (currentQ < TOTAL - 1) setCurrentQ(c => c + 1); else handleGenerate(updatedAnswers); }, 350); } }} options={q.options} consistencyOptions={q.consistencyOptions} />
         )}
 
         {/* SOURCE */}
