@@ -154,7 +154,7 @@ export default async function handler(req, res) {
       <p class="meta">For: <strong>${decodedName}</strong> &nbsp;·&nbsp; Deliver to: <strong>${decodedEmail}</strong></p>
     </div>
     <label>Report — review and edit below, then click Send</label>
-    \${answersPanel}
+    ${answersPanel}
     <textarea id="reportContent">${safeReport}</textarea>
     <div class="actions">
       <button class="btn" id="sendBtn" onclick="sendReport()">Send to ${firstName} →</button>
