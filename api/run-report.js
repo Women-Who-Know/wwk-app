@@ -32,6 +32,9 @@ export default async function handler(req, res) {
     const submission = JSON.parse(await new Response(blobResult.stream).text());
     const { name, email, answers, paymentIntentId, isBeta } = submission;
 
+    // Debug: log revenue data
+    console.log('q11_revenue from blob:', JSON.stringify(answers?.q11_revenue));
+
     // 2. Generate report — full Claude pipeline
     const reportContent = await generateReport(answers, name);
 
