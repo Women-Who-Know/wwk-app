@@ -840,7 +840,15 @@ export default function App() {
   }
 
   function next() {
-    if (!canProceed()) { setError("Please answer this question to continue."); return; }
+    if (!canProceed()) {
+      const q = QUESTIONS[currentQ];
+      if (q?.type === "revenue" && answers[q.id]?.range && !answers[q.id]?.consistency) {
+        setError("Almost there — tell us how consistent that revenue is.");
+      } else {
+        setError("Please answer this question to continue.");
+      }
+      return;
+    }
     setError("");
     if (currentQ < TOTAL - 1) {
       setCurrentQ((c) => c + 1);
@@ -1428,6 +1436,16 @@ function OffersInput({ value, onChange, options, hint }) {
 }
 
 function RevenueInput({ value, onChange, options, consistencyOptions }) {
+  const consistencyRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (value.range && !value.consistency && consistencyRef.current) {
+      setTimeout(() => {
+        consistencyRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+  }, [value.range]);
+
   return (
     <div>
       <div style={S.choices}>
@@ -1443,8 +1461,8 @@ function RevenueInput({ value, onChange, options, consistencyOptions }) {
         ))}
       </div>
       {value.range && (
-        <div style={{ marginTop: 28 }}>
-          <p style={{ ...S.label, marginBottom: 16 }}>Is this consistent month to month, or does it fluctuate significantly?</p>
+        <div ref={consistencyRef} style={{ marginTop: 28, padding: "20px", background: "#F7F4EF", borderLeft: "3px solid #2B9BAA" }}>
+          <p style={{ ...S.label, marginBottom: 16, color: "#2B9BAA" }}>One more — is this consistent month to month, or does it fluctuate?</p>
           <div style={S.choices}>
             {consistencyOptions.map(opt => (
               <button
