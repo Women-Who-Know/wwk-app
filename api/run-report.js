@@ -539,6 +539,10 @@ Do not oversell. The report already did the selling.`;
 
   const user = `Write the complete personalised Founder Benchmark Assessment report for ${name}.
 
+CONFIRMED DATA — USE THESE NUMBERS DIRECTLY IN THE REPORT:
+Monthly revenue range: ${answers['q11_revenue']?.range || 'not provided'}
+Revenue consistency: ${answers['q11_revenue']?.consistency || 'not provided'}
+
 Her pre-processed answers:
 ${processedAnswers}
 
