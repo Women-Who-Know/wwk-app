@@ -29,7 +29,10 @@ export default async function handler(req, res) {
       }
     }
 
-    // 2. Generate report via Claude
+    // 2. Respond immediately — generation runs after response is sent
+    res.status(200).json({ success: true });
+
+    // 3. Generate report via Claude (runs after client receives 200)
     const reportContent = await generateReport(answers, name);
 
     // NOTE: Payment is captured only after admin reviews and clicks Send — not here.
@@ -68,8 +71,6 @@ export default async function handler(req, res) {
     // 5. Add to Resend audience (non-fatal if it fails)
     await addContact({ email, firstName: name });
 
-    res.status(200).json({ success: true });
-
   } catch (err) {
     console.error("Report generation error:", err);
 
@@ -82,7 +83,8 @@ export default async function handler(req, res) {
       }
     }
 
-    res.status(500).json({ error: "Report generation failed. Your card has not been charged." });
+    // Response already sent - log only
+    console.error("Post-response error: Report generation failed. Card not charged.");
   }
 }
 
