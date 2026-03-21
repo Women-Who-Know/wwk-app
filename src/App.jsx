@@ -23,6 +23,7 @@ const INDUSTRIES = [
   "Retail & E-commerce",
   "Food & Hospitality",
   "Arts & Entertainment",
+  "Photography",
   "Non-Profit & Social Enterprise",
   "Other",
 ];
@@ -458,6 +459,16 @@ Source: ISED NAICS 71151 [A] + IRS Arts, Entertainment & Recreation [B]
 - % of Canadian businesses in this sector reporting a profit: 92.4%
 - Typical net margin: 23.1%
 - Note: High profitability rate paired with low revenue ceiling reflects structural constraint. Independent artists who do earn profit are typically highly selective about what they take on.
+
+=== PHOTOGRAPHY ===
+Source: ISED NAICS 541921 [A] + IRS Professional, Scientific & Technical Services [B]
+- North American revenue range (CAD): $43,500 – $216,400
+- Midpoint reference: $130,000
+- % of Canadian businesses in this sector reporting a profit: 87.6%
+- Typical net margin: 31.2%
+- Pricing benchmark: Portrait/headshot photographers at 3–5 years typically price sessions at $350–$900 CAD; commercial/corporate photographers command $1,200–$4,500 CAD per day rate
+- Key structural constraint: Revenue ceiling is set by billable hours — a solo photographer has a hard physical ceiling unless they introduce digital products, licensing, or associate photographers
+- Note: Covers portrait, commercial, event, headshot, and wedding photographers operating as sole proprietors or small studios. Excludes fine art photography (use Arts & Entertainment for that). Businesses with recurring corporate clients dramatically outperform those dependent on one-time bookings.
 
 === NON-PROFIT & SOCIAL ENTERPRISE ===
 Source: ISED NAICS 81341 [A]
