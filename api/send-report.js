@@ -143,12 +143,12 @@ function buildReportEmail(name, reportContent, printUrl) {
   <!-- Body -->
   <div style="padding:48px;color:#1C1A17;line-height:1.85;font-size:16px;">
     <h1 style="font-family:Georgia,serif;font-weight:300;font-size:32px;color:#1C1A17;margin:0 0 8px;">Your Founder Benchmark Assessment</h1>
-    <p style="color:#8A837A;font-family:sans-serif;font-size:13px;margin:0 0 32px;">Prepared for \${name}</p>
+    <p style="color:#8A837A;font-family:sans-serif;font-size:13px;margin:0 0 32px;">Prepared for ${name}</p>
     <hr style="border:none;border-top:1px solid #E0D8CC;margin:32px 0;"/>
-    \${htmlContent}
+    ${htmlContent}
     <div style="text-align:center;padding:28px 48px;border-top:1px solid #E0D8CC;margin-top:40px;">
       <p style="font-family:sans-serif;font-size:13px;color:#8A837A;margin:0 0 14px;">Save a copy of your report</p>
-      <a href="\${printUrl}" style="display:inline-block;background:#1C1A17;color:white;padding:14px 36px;text-decoration:none;font-family:sans-serif;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Download as PDF &rarr;</a>
+      <a href="${printUrl}" style="display:inline-block;background:#1C1A17;color:white;padding:14px 36px;text-decoration:none;font-family:sans-serif;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Download as PDF &rarr;</a>
     </div>
   </div>
 
