@@ -813,7 +813,7 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState({});
-  const answersRef = React.useRef({});
+  const answersRef = useRef({});
   const [report, setReport] = useState("");
   const [scores, setScores] = useState({});
   const [sections, setSections] = useState([]);
