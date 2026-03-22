@@ -1235,7 +1235,10 @@ function Assessment({ q, currentQ, total, progress, answers, setAnswer, onNext, 
   const firstName = name ? name.split(" ")[0] : "";
 
   function handleTextNext() {
-    setAnswer(q.id, text);
+    // Only save text for text-based questions — object-type questions save via their onChange handlers
+    if (q.type === 'sentence' || q.type === 'textarea') {
+      setAnswer(q.id, text);
+    }
     setTimeout(onNext, 50);
   }
 
