@@ -813,6 +813,7 @@ export default function App() {
   const [email, setEmail] = useState("");
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState({});
+  const answersRef = React.useRef({});
   const [report, setReport] = useState("");
   const [scores, setScores] = useState({});
   const [sections, setSections] = useState([]);
@@ -824,7 +825,11 @@ export default function App() {
   const progress = (currentQ / TOTAL) * 100;
 
   function setAnswer(id, value) {
-    setAnswers((prev) => ({ ...prev, [id]: value }));
+    setAnswers((prev) => {
+      const next = { ...prev, [id]: value };
+      answersRef.current = next;
+      return next;
+    });
   }
 
   function canProceed() {
@@ -862,8 +867,8 @@ export default function App() {
   }
 
   async function handleGenerate(finalAnswers) {
-    // finalAnswers is passed explicitly to avoid stale closure on last question
-    const a = finalAnswers || answers;
+    // Use finalAnswers if passed, otherwise fall back to ref (always current)
+    const a = finalAnswers || answersRef.current || answers;
     setScreen("generating");
     try {
       const response = await fetch("/api/generate-report", {
