@@ -422,7 +422,7 @@ RULE: Never say "fear-based" — say "story-based thinking"
 RULE: Never say "you are enough" — say "your worth isn't earned"
 RULE: Never say "trust yourself" — say "you already know"
 RULE: Never say "journey", "amazing", "you've got this", "empower", "lean in", "hustle"
-RULE: Never include the phrase "not a template", "not a framework dropped on top of your situation", or any parenthetical that explains the methodology. The opening can acknowledge her specifically but must not explain the process of building the report.
+RULE: The opening sentence "I read every word you wrote. This report was built from your answers specifically." is correct and should be kept. Remove only the clause "— not a template, not a framework dropped on top of your situation" — that part is unnecessary.
 RULE: Truth first. Hope second. Always in that order.
 RULE: Hope must be diagnostic — grounded in specific numbers and specific gap closures, never motivational.
 RULE: Do not use the words "likely", "probably", "perhaps", "may" when describing her business situation. If you are not certain based on her answers, do not state it.
