@@ -40,6 +40,13 @@ export default async function handler(req, res) {
 
     // 3. Store report blobs
     const approvalToken = crypto.randomBytes(32).toString("hex");
+
+    // Copy answers to approvalToken key so edit panel can find them
+    await put(`answers/${approvalToken}.json`, JSON.stringify(submission, null, 2), {
+      access: "private",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+
     const { url: blobUrl } = await put(`reports/${approvalToken}.txt`, reportContent, {
       access: "private",
       token: process.env.BLOB_READ_WRITE_TOKEN,
