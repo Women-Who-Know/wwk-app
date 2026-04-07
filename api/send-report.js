@@ -51,6 +51,7 @@ export default async function handler(req, res) {
     const { error: sendError } = await resend.emails.send({
       from: "Anitta Hamming <hello@womenwhoknow.ca>",
       to: email,
+      bcc: "hello@womenwhoknow.ca",
       subject: "Your WWK Founder Benchmark Assessment Report",
       html: buildReportEmail(name, report, printUrl),
     });
