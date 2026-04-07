@@ -68,6 +68,7 @@ export default async function handler(req, res) {
         if (val.sector) return val.sector + (val.niche ? " — " + val.niche : "");
         if (val.range) return val.range + "/month" + (val.consistency ? " · " + val.consistency : "");
         if (val.source) return val.source + (val.data ? " · " + val.data : "");
+        if (val.income !== undefined) return val.count + " offers — highest priced: " + val.income + (val.profit ? " · most profitable: " + val.profit : "");
         if (val.primary !== undefined) return val.count + " offers — primary: " + val.primary;
         if (val.count !== undefined) return val.count + (val.structure ? " (" + val.structure + ")" : "");
         return JSON.stringify(val);
